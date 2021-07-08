@@ -6,11 +6,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Chris Hughes
 -/
 import group_theory.group_action
+import group_theory.group_action.basic
 import group_theory.quotient_group
 import group_theory.order_of_element
 import data.zmod.basic
 import data.fintype.card
 import data.list.rotate
+import algebra.group.conj
 
 /-!
 # Sylow theorems
@@ -265,5 +267,145 @@ begin
       ← fintype.card_prod],
   exact @fintype.card_congr _ _ (id _) (id _) (preimage_mk_equiv_subgroup_times_set _ _)
 end⟩
+
+
+-- All Sylow `p`-subgroups of `G` are conjugate to each other.
+
+/- A, B : sylow p-subgroups => ord G = pᵃm, p does not divide m, ord A = ord B = pᵃ 
+
+required inputs: G, p,  maybe a, m but i think compute them from G and p
+required assumptions (need input proofs) : p prime, ordG = pᵃm, p ¬∣ m, (ie a is maximal)
+    or construct a and m from card G and p then need only p | ordG
+
+-- A conjugacy class of G is an orbit under the conjugation action of G.
+-/
+
+-- i don't think i can use is_conj to check if A and B are conjugate
+-- surely I need conjugation between subgroups- how?
+-- but also struggling to use the orbit definition
+
+def subgroups_are_conj_by_x (H K : subgroup G) (g : G) :=
+{ c | ∃ h ∈ H, c = g⁻¹ * h * g } = K
+
+-- FROM KEVIN BUZZARDS GROUP THEORY GAME
+def subgroups_are_conj (H K : subgroup G) := 
+  ∃ g : G, subgroups_are_conj_by_x H K g
+
+-- adapted
+
+def is_sylow_subgroup_p [fintype G] (H : subgroup G) (p : ℕ) :=
+    ∃ m n : ℕ, card H = p ^ n ∧ p.prime ∧ ¬ p ∣ m ∧ card G = p ^ n * m
+
+def is_sylow_subgroup [fintype G] (H : subgroup G) := 
+    ∃ p : ℕ, is_sylow_subgroup_p H p
+
+--mine
+
+-- is giving G as an input necessary?
+-- has a type problem- I need it to recognise that the set is finite
+-- as G is finite the set of subsets is also finite
+
+-- def set_of_sylow_subgroups (p : ℕ) [fintype G] : finset (subgroup G) :=
+--   { val := _,
+--     nodup := _
+--     }
+
+
+-- doesn't return finset
+def set_of_sylow_subgroups (p : ℕ) [fintype G] : set (subgroup G) :=
+  { H | is_sylow_subgroup_p H p }
+
+
+def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
+  { J | subgroups_are_conj H J ∧ is_sylow_subgroup J }
+
+
+def all_left_cosets [fintype G] (H : subgroup G) : finset (subgroup G) :=
+  ({ K | ∃ g : G, left_coset g H = K }.finite).to_finset
+
+
+-- do I need to force finset to get index?
+-- if i don't enforce all_left_cosets being finite then this becomes noncomputable
+def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
+  finset.card (all_left_cosets H)
+
+-- why is this noncomputable ??
+def index_by_lagranges [fintype G] (H : subgroup G) : ℕ :=
+  card G / card H
+
+
+/-- Second Sylow theorem -/
+-- removed (hdvd : p ^ n ∣ card G) from inputs - hG covers this
+theorem sylow_p_subgroups_conjugate [fintype G] {p m n : ℕ} (hp : p.prime)
+  (hG : card G = p ^ n * m) (hDiv : ¬ p ∣ m) (H : subgroup G)
+  (h₁ : is_sylow_subgroup_p H p)
+    : set_of_conjug_subgroups H = set_of_sylow_subgroups p :=
+begin
+
+  sorry,
+end
+
+
+/-- Alternative formulation of second sylow theorem -/
+-- from kbuzzards group theory game
+theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
+ (hdiv : ¬ p ∣ m) (H K : subgroup G) (h₁ : is_sylow_subgroup_p H p) (h₂ : is_sylow_subgroup_p K p) : 
+∃ (g : G), subgroups_are_conj H K :=
+begin
+  have h₃ : ¬ index_of_subgroup K = 0,
+  {
+    -- need to show set of left cosets of H is a K-set
+
+    sorry,
+  },
+
+
+
+  -- let H' be the set of left cosets of H
+  -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
+  -- then H' is a K-set     -- what does this mean?
+  -- some theorem says |K'| ≡ |H'| (mod p) and |H'| = (G : H)  not div by p
+  -- so |K'| ≠ 0 -- index K ≠ 0
+
+  -- let xH ∈ K'
+  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K 
+  -- so x⁻¹Hx ≤ K
+  -- since |H| = |K|, x⁻¹Hx = K so are conjugate subgroups
+
+
+
+  sorry,
+end
+
+
+
+/-- Third Sylow theorem -/
+-- As defined at the top of the file
+/-
+Let `nₚ` be the number of Sylow `p`-subgroups of `G`, then `nₚ` divides the index of the Sylow
+`p`-subgroup, `nₚ ≡ 1 [MOD p]`, and `nₚ` is equal to the index of the normalizer of the Sylow
+`p`-subgroup in `G`.
+
+- Index is the number of left cosets
+-/
+
+/- In my lecture notes, third Sylow theorem is only the second statement. Will begin with that -/
+
+
+theorem sylow_p_subgroups_size_div_index [fintype G] {p m n nₚ : ℕ} (hp : p.prime)
+  (hdvd : p ^ n ∣ card G) (hG : card G = p ^ n * m) (hDiv : ¬ p ∣ m) (A : subgroup G)
+  (h₁ : is_sylow_subgroup A) -- nₚ = ord sylₚ(G) 
+  : nₚ ∣ index_of_subgroup A :=
+begin
+  sorry,
+end
+
+theorem sylow_p_subgroups_size_congr_1modp [fintype G] {p m n nₚ : ℕ} (hp : p.prime)
+  (hdvd : p ^ n ∣ card G) (hG : card G = p ^ n * m) (hDiv : ¬ p ∣ m) -- nₚ = ord sylₚ(G) 
+  : nₚ ≡ 1 [MOD p] :=
+begin
+  sorry,
+end
+
 
 end sylow
