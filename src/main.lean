@@ -299,14 +299,23 @@ def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
   { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup_p J p }
 
 
-def all_left_cosets [fintype G] (H : subgroup G) :=
-  fintype (quotient H)
+-- def all_left_cosets [fintype G] (H : subgroup G) : (quotient H) :=
+--    (quotient H)
 
 noncomputable def index_of_subgroup' [fintype G] (H : subgroup G) : ℕ :=
   card (quotient H)
 
 noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
   card G / card H
+
+def aux_action (K : subgroup G) (H : subgroup G) (k : G) {a : G} (h' : left_coset a H.carrier) 
+  := left_coset (k * a) H.carrier
+
+-- not sure if my definition of this should include aux_action ??
+lemma aux_lemma (H K : subgroup G) (x : G) : ∀ y : K, (left_coset (x⁻¹ * y * x) H) = H.carrier :=
+begin
+  sorry,
+end
 
 /-- Second Sylow theorem -/
 -- removed (hdvd : p ^ n ∣ card G) from inputs - hG covers this
@@ -323,9 +332,6 @@ end
 /-- Alternative formulation of second sylow theorem -/
 -- from kbuzzards group theory game
 -- may be able to remove hdiv as its included in h1 and h2
-
-
-
 theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
  (hdiv : ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup_p' H p m n)
   (h₂ : is_sylow_subgroup_p' K p m n) : 
@@ -357,6 +363,14 @@ begin
     apply h₄,
     exact modeq.symm h₅,
   },
+  have h₆ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
+    sorry,
+  },
+  rw subgroups_are_conj,
+  unfold subgroups_are_conj_by_x,
+  -- rw left and right cosets and use definitions
+
+  
 
   -- let H' be the set of left cosets of H
       -- TODO: i haven't constructed this action
@@ -368,8 +382,8 @@ begin
   -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₆
 
   -- let xH ∈ K'
-  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K 
-  -- so x⁻¹Hx ≤ K
+  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K -- this is my aux_lemma
+  -- so x⁻¹Hx ≤ K -- this is theorem h₆
   -- since |H| = |K|, x⁻¹Hx = K so are conjugate subgroups
 
   sorry,
