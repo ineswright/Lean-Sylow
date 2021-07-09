@@ -329,34 +329,55 @@ end
 theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
  (hdiv : ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup_p' H p m n)
   (h₂ : is_sylow_subgroup_p' K p m n) : 
-∃ (g : G), subgroups_are_conj H K :=
+    subgroups_are_conj H K :=
 begin
+  -- think about nesting h₃ in h₄ if not required later on
   have h₃ : ¬ p ∣ index_of_subgroup H,
   {
     unfold index_of_subgroup,
     unfold is_sylow_subgroup_p' at h₁,
-    have h₄ : p ^ n > 0, {
-      rw nat.prime at hp,
-      exact pow_pos (pos_of_gt hp.left) n,
-    },
-    rw [hG, h₁.left, mul_comm, nat.mul_div_cancel _ h₄],
+    rw nat.prime at hp,
+    rw [hG, h₁.left, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)],
     exact h₁.right.right.right,
+  },
+  have h₄ : ¬ index_of_subgroup H ≡ 0 [MOD p], {
+    intro h,
+    rw nat.modeq.modeq_zero_iff at h,
+    apply h₃,
+    exact h,
+  },
+  have h₅ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
+    unfold is_sylow_subgroup_p' at *,
+    repeat {rw index_of_subgroup},
+    rw [h₁.left, h₁.right.right.left, h₂.left],
+  },
+  have h₆ : (index_of_subgroup K) ≠ 0, {
+    intro h,
+    rw h at h₅,
+    apply h₄,
+    exact modeq.symm h₅,
   },
 
   -- let H' be the set of left cosets of H
+      -- TODO: i haven't constructed this action
   -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
-  -- then H' is a K-set     -- what does this mean?
-  -- some theorem says |K'| ≡ |H'| (mod p) and |H'| = (G : H)  not div by p
-  -- so |K'| ≠ 0 -- index K ≠ 0
+  
+  -- |K'| ≡ |H'| (mod p) -- i have this as theorem h₅
+  -- |H'| = (G : H)  not div by p   -- I have this as theorem h₄
+
+  -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₆
 
   -- let xH ∈ K'
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K 
   -- so x⁻¹Hx ≤ K
   -- since |H| = |K|, x⁻¹Hx = K so are conjugate subgroups
 
-
-
   sorry,
+end
+
+example (a b c : ℕ) (h1: a % c = b % c) : (a - b) % c = 0 :=
+begin
+  exact sub_mod_eq_zero_of_mod_eq h1,
 end
 
 
@@ -375,7 +396,7 @@ Let `nₚ` be the number of Sylow `p`-subgroups of `G`, then `nₚ` divides the 
 
 theorem sylow_p_subgroups_size_div_index [fintype G] {p m n nₚ : ℕ} (hp : p.prime)
   (hdvd : p ^ n ∣ card G) (hG : card G = p ^ n * m) (hDiv : ¬ p ∣ m) (A : subgroup G)
-  (h₁ : is_sylow_subgroup A) -- nₚ = ord sylₚ(G) 
+  (h₁ : is_sylow_subgroup_p A p) -- nₚ = ord sylₚ(G) 
   : nₚ ∣ index_of_subgroup A :=
 begin
   sorry,
