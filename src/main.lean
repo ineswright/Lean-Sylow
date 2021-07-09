@@ -13,6 +13,7 @@ import data.zmod.basic
 import data.fintype.card
 import data.list.rotate
 import algebra.group.conj
+import data.real.basic
 
 /-!
 # Sylow theorems
@@ -40,7 +41,7 @@ In this file, currently only the first of these results is proven.
 * Sylow theorems for infinite groups
 -/
 
-open equiv fintype finset mul_action function
+open equiv fintype finset mul_action function nat
 open equiv.perm subgroup list quotient_group
 open_locale big_operators
 universes u v w
@@ -269,20 +270,10 @@ begin
 end⟩
 
 
--- All Sylow `p`-subgroups of `G` are conjugate to each other.
 
-/- A, B : sylow p-subgroups => ord G = pᵃm, p does not divide m, ord A = ord B = pᵃ 
 
-required inputs: G, p,  maybe a, m but i think compute them from G and p
-required assumptions (need input proofs) : p prime, ordG = pᵃm, p ¬∣ m, (ie a is maximal)
-    or construct a and m from card G and p then need only p | ordG
 
--- A conjugacy class of G is an orbit under the conjugation action of G.
--/
-
--- i don't think i can use is_conj to check if A and B are conjugate
--- surely I need conjugation between subgroups- how?
--- but also struggling to use the orbit definition
+-- NEW
 
 def subgroups_are_conj_by_x (H K : subgroup G) (g : G) :=
 { c | ∃ h ∈ H, c = g⁻¹ * h * g } = K
@@ -294,45 +285,28 @@ def subgroups_are_conj (H K : subgroup G) :=
 -- adapted
 
 def is_sylow_subgroup_p [fintype G] (H : subgroup G) (p : ℕ) :=
-    ∃ m n : ℕ, card H = p ^ n ∧ p.prime ∧ ¬ p ∣ m ∧ card G = p ^ n * m
+  ∃ m n : ℕ, card G = p ^ n * m ∧ p.prime ∧ ¬ p ∣ m ∧ card H = p ^ n
 
-def is_sylow_subgroup [fintype G] (H : subgroup G) := 
-    ∃ p : ℕ, is_sylow_subgroup_p H p
+def is_sylow_subgroup_p' [fintype G] (H : subgroup G) (p m n : ℕ) :=
+    card H = p ^ n ∧ p.prime ∧ card G = p ^ n * m ∧ ¬ p ∣ m
 
 --mine
 
--- is giving G as an input necessary?
--- has a type problem- I need it to recognise that the set is finite
--- as G is finite the set of subsets is also finite
-
--- def set_of_sylow_subgroups (p : ℕ) [fintype G] : finset (subgroup G) :=
---   { val := _,
---     nodup := _
---     }
-
-
--- doesn't return finset
 def set_of_sylow_subgroups (p : ℕ) [fintype G] : set (subgroup G) :=
   { H | is_sylow_subgroup_p H p }
 
-
 def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
-  { J | subgroups_are_conj H J ∧ is_sylow_subgroup J }
+  { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup_p J p }
 
 
-def all_left_cosets [fintype G] (H : subgroup G) : finset (subgroup G) :=
-  ({ K | ∃ g : G, left_coset g H = K }.finite).to_finset
+def all_left_cosets [fintype G] (H : subgroup G) :=
+  fintype (quotient H)
 
+noncomputable def index_of_subgroup' [fintype G] (H : subgroup G) : ℕ :=
+  card (quotient H)
 
--- do I need to force finset to get index?
--- if i don't enforce all_left_cosets being finite then this becomes noncomputable
-def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
-  finset.card (all_left_cosets H)
-
--- why is this noncomputable ??
-def index_by_lagranges [fintype G] (H : subgroup G) : ℕ :=
+noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
   card G / card H
-
 
 /-- Second Sylow theorem -/
 -- removed (hdvd : p ^ n ∣ card G) from inputs - hG covers this
@@ -348,18 +322,26 @@ end
 
 /-- Alternative formulation of second sylow theorem -/
 -- from kbuzzards group theory game
+-- may be able to remove hdiv as its included in h1 and h2
+
+
+
 theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
- (hdiv : ¬ p ∣ m) (H K : subgroup G) (h₁ : is_sylow_subgroup_p H p) (h₂ : is_sylow_subgroup_p K p) : 
+ (hdiv : ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup_p' H p m n)
+  (h₂ : is_sylow_subgroup_p' K p m n) : 
 ∃ (g : G), subgroups_are_conj H K :=
 begin
-  have h₃ : ¬ index_of_subgroup K = 0,
+  have h₃ : ¬ p ∣ index_of_subgroup H,
   {
-    -- need to show set of left cosets of H is a K-set
-
-    sorry,
+    unfold index_of_subgroup,
+    unfold is_sylow_subgroup_p' at h₁,
+    have h₄ : p ^ n > 0, {
+      rw nat.prime at hp,
+      exact pow_pos (pos_of_gt hp.left) n,
+    },
+    rw [hG, h₁.left, mul_comm, nat.mul_div_cancel _ h₄],
+    exact h₁.right.right.right,
   },
-
-
 
   -- let H' be the set of left cosets of H
   -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
@@ -376,7 +358,6 @@ begin
 
   sorry,
 end
-
 
 
 /-- Third Sylow theorem -/
