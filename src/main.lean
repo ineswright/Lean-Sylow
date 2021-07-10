@@ -274,9 +274,52 @@ end⟩
 
 
 -- NEW
+-- should replace with conjugates, is_conj, etc
 
-def subgroups_are_conj_by_x (H K : subgroup G) (g : G) :=
-{ c | ∃ h ∈ H, c = g⁻¹ * h * g } = K
+
+def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
+ { carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
+  one_mem' := 
+begin
+  use 1,
+  split,
+  exact one_mem H,
+  simp,  
+end,
+  mul_mem' := 
+begin
+  intros a b ha hb,
+  simp,
+  use g * a * b * g⁻¹,
+  split,
+  {
+    -- introduce a g * g⁻¹ between a * b or sim.
+    -- then replace with h and h' from ha hb
+    
+    sorry,
+  },
+  rw [mul_assoc, mul_assoc, inv_mul_self g, mul_assoc, mul_one, ← mul_assoc],
+  simp,
+end,
+  inv_mem' := 
+begin
+  simp,
+  intros x y hy hx,
+  use (g * x * g⁻¹)⁻¹,
+  split,
+  {
+    rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
+    exact inv_mem H hy,
+  },
+  simp,
+  rw [mul_assoc, mul_assoc, mul_assoc, inv_mul_self, mul_one, ← mul_assoc, inv_mul_self],
+  simp,
+end }
+
+
+def subgroups_are_conj_by_x (H K : subgroup G) (x : G) :=
+  conjugate_subgroup H x = K
+  -- (H : group G).conjugates_of_set = K 
 
 -- FROM KEVIN BUZZARDS GROUP THEORY GAME
 def subgroups_are_conj (H K : subgroup G) := 
@@ -314,30 +357,31 @@ def aux_action (K : subgroup G) (H : subgroup G) (k : G) {a : G} (h' : left_cose
 -- not sure if my definition of this should include aux_action ??
 lemma aux_lemma (H K : subgroup G) (x : G) : ∀ y : K, (left_coset (x⁻¹ * y * x) H) = H.carrier :=
 begin
+  -- intro k,
+  -- have h : left_coset (k * x) H = left_coset x H,
+  -- {
+  --   sorry,
+  -- }
+  unfold left_coset,
+  intro k,
+  -- rw mul_inv_rev x⁻¹ (k⁻¹ * x),
+  
+  -- in proof says yxH = xH, ∀ y ∈ K
+  -- so then x⁻¹yxH = x⁻¹xH = H
+
   sorry,
 end
 
-/-- Second Sylow theorem -/
--- removed (hdvd : p ^ n ∣ card G) from inputs - hG covers this
-theorem sylow_p_subgroups_conjugate [fintype G] {p m n : ℕ} (hp : p.prime)
-  (hG : card G = p ^ n * m) (hDiv : ¬ p ∣ m) (H : subgroup G)
-  (h₁ : is_sylow_subgroup_p H p)
-    : set_of_conjug_subgroups H = set_of_sylow_subgroups p :=
-begin
+#check group.conj_mem_conjugates_of_set
 
-  sorry,
-end
-
-
-/-- Alternative formulation of second sylow theorem -/
+/-- Formulation of second sylow theorem -/
+-- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
--- may be able to remove hdiv as its included in h1 and h2
 theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
- (hdiv : ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup_p' H p m n)
+ (H K : subgroup G) ( h₁ : is_sylow_subgroup_p' H p m n)
   (h₂ : is_sylow_subgroup_p' K p m n) : 
     subgroups_are_conj H K :=
 begin
-  -- think about nesting h₃ in h₄ if not required later on
   have h₃ : ¬ p ∣ index_of_subgroup H,
   {
     unfold index_of_subgroup,
@@ -363,17 +407,23 @@ begin
     apply h₄,
     exact modeq.symm h₅,
   },
-  have h₆ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
+  -- want to rewrite this to say expression is a subgroup of H
+  -- atm I think it says expression is a subset of H
+  have h₇ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
+    -- unfold right_coset,
+    -- unfold left_coset,
+    -- intro x,
+    -- simp,
     sorry,
   },
   rw subgroups_are_conj,
   unfold subgroups_are_conj_by_x,
-  -- rw left and right cosets and use definitions
+  -- want to show its equiv to h₆ ie K a normal subgroup of H
+  -- and they have the same size => subgroups are equal
 
-  
 
   -- let H' be the set of left cosets of H
-      -- TODO: i haven't constructed this action
+      -- this is my aux_action
   -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
   
   -- |K'| ≡ |H'| (mod p) -- i have this as theorem h₅
@@ -384,15 +434,25 @@ begin
   -- let xH ∈ K'
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K -- this is my aux_lemma
   -- so x⁻¹Hx ≤ K -- this is theorem h₆
-  -- since |H| = |K|, x⁻¹Hx = K so are conjugate subgroups
+  -- since |H| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 
   sorry,
 end
 
-example (a b c : ℕ) (h1: a % c = b % c) : (a - b) % c = 0 :=
-begin
-  exact sub_mod_eq_zero_of_mod_eq h1,
-end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /-- Third Sylow theorem -/
@@ -401,8 +461,6 @@ end
 Let `nₚ` be the number of Sylow `p`-subgroups of `G`, then `nₚ` divides the index of the Sylow
 `p`-subgroup, `nₚ ≡ 1 [MOD p]`, and `nₚ` is equal to the index of the normalizer of the Sylow
 `p`-subgroup in `G`.
-
-- Index is the number of left cosets
 -/
 
 /- In my lecture notes, third Sylow theorem is only the second statement. Will begin with that -/
