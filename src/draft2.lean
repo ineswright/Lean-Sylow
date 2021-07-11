@@ -8,6 +8,7 @@ import data.fintype.card
 import data.list.rotate
 import algebra.group.conj
 import group_theory.sylow
+import tactic
 
 
 open equiv fintype finset mul_action function nat sylow
@@ -44,7 +45,6 @@ lemma card_H : card H = p ^ h.n := (classical.some_spec (classical.some_spec h))
 end is_sylow_subgroup
 
 
-
 def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
   one_mem' := 
@@ -56,19 +56,8 @@ begin
 end,
   mul_mem' := 
 begin
-  intros a b ha hb,
-  simp,
-  use g * a * b * g⁻¹,
-  split,
-  {
-    
-    -- introduce a g * g⁻¹ between a * b or sim.
-    -- then replace with h and h' from ha hb
-    
-    sorry,
-  },
-  rw [mul_assoc, mul_assoc, inv_mul_self g, mul_assoc, mul_one, ← mul_assoc],
-  simp,
+  rintros - - ⟨c, hc, rfl⟩ ⟨d, hd, rfl⟩,
+  exact ⟨c * d, H.mul_mem hc hd, by group⟩,
 end,
   inv_mem' := 
 begin
@@ -86,9 +75,8 @@ begin
 end }
 
 
-def subgroups_are_conj_by_x (H K : subgroup G) (g : G) :=
-  { c | ∃ h ∈ H, c = g⁻¹ * h * g } = K
-  -- conjugate_subgroup H x = K -- once I have all the proofs for this
+def subgroups_are_conj_by_x (H K : subgroup G) (x : G) :=
+  conjugate_subgroup H x = K
 
 def subgroups_are_conj (H K : subgroup G) := 
   ∃ g : G, subgroups_are_conj_by_x H K g
@@ -158,10 +146,7 @@ begin
     apply not_subgroup_index_conj_zero_wrt_p h₁ hp,
     exact modeq.symm h₃,
   },
-
-  -- atm I think it says expression is a subset of H 
-  -- reformulate this to use conjugate_subgroup
-  have h₅ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
+  have h₅ : ∀ x : G, conjugate_subgroup K x ≤ H, {
     sorry,
   },
   rw subgroups_are_conj,
