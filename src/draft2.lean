@@ -12,7 +12,7 @@ import group_theory.sylow
 
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
--- open_locale big_operators
+open_locale big_operators
 universes u v w
 variables {G : Type u} {α : Type v} {β : Type w} [group G]
 
@@ -45,45 +45,46 @@ end is_sylow_subgroup
 
 
 
-
--- def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
---  { carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
---   one_mem' := 
--- begin
---   use 1,
---   split,
---   exact one_mem H,
---   simp,  
--- end,
---   mul_mem' := 
--- begin
---   intros a b ha hb,
---   simp,
---   use g * a * b * g⁻¹,
---   split,
---   {
---     -- introduce a g * g⁻¹ between a * b or sim.
---     -- then replace with h and h' from ha hb
+def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
+{ carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
+  one_mem' := 
+begin
+  use 1,
+  split,
+  exact one_mem H,
+  simp,  
+end,
+  mul_mem' := 
+begin
+  intros a b ha hb,
+  simp,
+  use g * a * b * g⁻¹,
+  split,
+  {
     
---     sorry,
---   },
---   rw [mul_assoc, mul_assoc, inv_mul_self g, mul_assoc, mul_one, ← mul_assoc],
---   simp,
--- end,
---   inv_mem' := 
--- begin
---   simp,
---   intros x y hy hx,
---   use (g * x * g⁻¹)⁻¹,
---   split,
---   {
---     rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
---     exact inv_mem H hy,
---   },
---   simp,
---   rw [mul_assoc, mul_assoc, mul_assoc, inv_mul_self, mul_one, ← mul_assoc, inv_mul_self],
---   simp,
--- end }
+    -- introduce a g * g⁻¹ between a * b or sim.
+    -- then replace with h and h' from ha hb
+    
+    sorry,
+  },
+  rw [mul_assoc, mul_assoc, inv_mul_self g, mul_assoc, mul_one, ← mul_assoc],
+  simp,
+end,
+  inv_mem' := 
+begin
+  simp,
+  intros x y hy hx,
+  use (g * x * g⁻¹)⁻¹,
+  split,
+  {
+    rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
+    exact inv_mem H hy,
+  },
+  simp,
+  rw [mul_assoc, mul_assoc, mul_assoc, inv_mul_self, mul_one, ← mul_assoc, inv_mul_self],
+  simp,
+end }
+
 
 def subgroups_are_conj_by_x (H K : subgroup G) (g : G) :=
   { c | ∃ h ∈ H, c = g⁻¹ * h * g } = K
@@ -98,24 +99,26 @@ def set_of_sylow_subgroups (p : ℕ) [fintype G] : set (subgroup G) :=
 def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
   { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
 
-
--- this must exist properly somewhere in mathlib
--- TODO: find it and replace
 noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
   card G / card H
 
 lemma index_of_subgroup_def [fintype G] (H : subgroup G) : 
   index_of_subgroup H = card G / card H := rfl
 
--- proof of this by lagranges theorem 
--- lemma index_of_subgroup_def2 [fintype G] (H : subgroup G) :
---   index_of_subgroup H = card (quotient H) := sorry
+-- version of lagranges theorem
+lemma index_of_subgroup_def2 [fintype G] (H : subgroup G) :
+  index_of_subgroup H = card (quotient H) := 
+begin
+  rw index_of_subgroup_def, 
+  rw card_eq_card_quotient_mul_card_subgroup H,
+  -- have h : card H > 0, {
+  --   sorry,
+  -- },
+  
+  sorry,
+end
 
 
--- def aux_action (K : subgroup G) (H : subgroup G) (k : G) {a : G} (h' : left_coset a H.carrier) 
---   := left_coset (k * a) H.carrier
-
--- need the lemma from the proof here as aux_lemma
 
 open is_sylow_subgroup
 
@@ -142,31 +145,30 @@ theorem sylow_two [fintype G] {p : ℕ} (hp : p.prime) --(hG : card G = p ^ n * 
  (H K : subgroup G) ( h₁ : is_sylow_subgroup H p ) (h₂ : is_sylow_subgroup K p) : 
     subgroups_are_conj H K :=
 begin
-  have h₅ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
+  have h₃ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
     repeat {rw index_of_subgroup},
     rw [card_G h₁, card_H h₁, card_H h₂, mul_comm],
     rw nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) h₁.n),
     refine modeq.symm _,
     sorry,
   },
-  have h₆ : (index_of_subgroup K) ≠ 0, {
+  have h₄ : (index_of_subgroup K) ≠ 0, {
     intro h,
-    rw h at h₅,
+    rw h at h₃,
     apply not_subgroup_index_conj_zero_wrt_p h₁ hp,
-    exact modeq.symm h₅,
+    exact modeq.symm h₃,
   },
 
-  -- want to rewrite this to say expression is a subgroup of H
-  -- atm I think it says expression is a subset of H
- 
-  have h₇ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
+  -- atm I think it says expression is a subset of H 
+  -- reformulate this to use conjugate_subgroup
+  have h₅ : ∀ x : G, (right_coset (left_coset x⁻¹ K) x) ≤ H, {
     sorry,
   },
   rw subgroups_are_conj,
   unfold subgroups_are_conj_by_x,
 
 
-  -- want to show its equiv to h₆ ie K a normal subgroup of H
+  -- want to show its equiv to h₄ ie K a normal subgroup of H
   -- and they have the same size => subgroups are equal
 
 
@@ -174,16 +176,15 @@ begin
       -- this is my aux_action
   -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
   
-  -- |K'| ≡ |H'| (mod p) -- i have this as theorem h₅
-  -- |H'| = (G : H)  not div by p   -- I have this as theorem h₄
+  -- |K'| ≡ |H'| (mod p) -- i have this in my lemma
+  -- |H'| = (G : H)  not div by p   -- I have this in my lemma
 
-  -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₆
+  -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₄
 
   -- let xH ∈ K'
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K -- this is my aux_lemma
-  -- so x⁻¹Hx ≤ K -- this is theorem h₆
+  -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |H| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 
   sorry,
 end
-
