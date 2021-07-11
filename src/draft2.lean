@@ -1,3 +1,4 @@
+/- Need to check how many of these I'm actually using -/
 import group_theory.group_action
 import group_theory.group_action.basic
 import group_theory.quotient_group
@@ -118,12 +119,6 @@ lemma index_of_subgroup_def [fintype G] (H : subgroup G) :
 
 open is_sylow_subgroup
 
-/-- Formulation of second sylow theorem -/
--- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
--- from kbuzzards group theory game
--- hG is in is_sylow_subgroup_p - attempt to remove?
-
-
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup H,
 -- h₄ : ¬ index_of_subgroup H ≡ 0 [MOD p]
@@ -137,9 +132,14 @@ begin
   exact hn,
 end
 
-theorem sylow_two [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
- (H K : subgroup G) ( h₁ : is_sylow_subgroup H p )
-  (h₂ : is_sylow_subgroup K p) : 
+
+/-- Formulation of second sylow theorem -/
+-- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
+-- from kbuzzards group theory game
+-- hG is in is_sylow_subgroup_p - attempt to remove?
+
+theorem sylow_two [fintype G] {p : ℕ} (hp : p.prime) --(hG : card G = p ^ n * m)
+ (H K : subgroup G) ( h₁ : is_sylow_subgroup H p ) (h₂ : is_sylow_subgroup K p) : 
     subgroups_are_conj H K :=
 begin
   have h₅ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
