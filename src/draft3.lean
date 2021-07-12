@@ -28,19 +28,15 @@ p.prime - predicate
 
 -- concerned no mention of p.prime - Ines
 -- by KBuzzard
-def is_sylow_subgroup [fintype G] (H : subgroup G) (p : ℕ) :=
-  ∃ m n : ℕ, card G = p ^ n * m ∧ ¬ p ∣ m ∧ card H = p ^ n
+def is_sylow_subgroup [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
+  card H = p ^ n
 
 namespace is_sylow_subgroup
+variables [fintype G] {H : subgroup G} {p m n : ℕ} {hp : p.prime}
+{hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup H hp hG hndiv)
 
-variables [fintype G] {H : subgroup G} {p : ℕ} (h : is_sylow_subgroup H p)
-
-noncomputable def m := classical.some h
-noncomputable def n := classical.some (classical.some_spec h)
-
-lemma card_G : card G = p ^ h.n * h.m := (classical.some_spec (classical.some_spec h)).1
-lemma not_p_div_m : ¬ p ∣ h.m :=  (classical.some_spec (classical.some_spec h)).2.1
-lemma card_H : card H = p ^ h.n := (classical.some_spec (classical.some_spec h)).2.2
+-- need a def card H lemma here so i can use rw instead of unfold
 
 end is_sylow_subgroup
 
@@ -81,19 +77,19 @@ def subgroups_are_conj_by_x (H K : subgroup G) (x : G) :=
 def subgroups_are_conj (H K : subgroup G) := 
   ∃ g : G, subgroups_are_conj_by_x H K g
 
-def set_of_sylow_subgroups (p : ℕ) [fintype G] : set (subgroup G) :=
-  { H | is_sylow_subgroup H p }
+def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
+  (hndiv: ¬ p ∣ m) : set (subgroup G) :=
+  { H | is_sylow_subgroup H hp hG hndiv }
 
-def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
-  { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
+-- def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
+--   { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
 
 noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
   card G / card H
 
 lemma index_of_subgroup_def [fintype G] (H : subgroup G) : 
   index_of_subgroup H = card G / card H := rfl
-
--- note that card : ℕ 
+ 
 lemma size_subgroup_gt_zero [fintype G] (H : subgroup G) : card H > 0 :=
 begin
 
@@ -112,46 +108,22 @@ begin
 end
 
 
-
-open is_sylow_subgroup
+--TODO: remove unfold here
 
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup H,
 -- h₄ : ¬ index_of_subgroup H ≡ 0 [MOD p]
-lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {H : subgroup G} {p : ℕ} (h : is_sylow_subgroup H p) 
-  (hp : p.prime) : ¬ index_of_subgroup H ≡ 0 [MOD p] :=
+lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {H : subgroup G} {p m n : ℕ}
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup H hp hG hndiv) 
+  : ¬ index_of_subgroup H ≡ 0 [MOD p] :=
 begin
   intro hn,
-  rw [nat.modeq.modeq_zero_iff, index_of_subgroup, card_G h, card_H h, mul_comm] at hn,
-  rw nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) h.n) at hn,
-  apply not_p_div_m h,
+  rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
+  unfold is_sylow_subgroup at h,
+  rw [h, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)] at hn,
+  apply hndiv,
   exact hn,
 end
-
-
--- unifies the n and m used in the definition of sylow subgroup and the subgroup G given
--- h.card_G : card G = p ^ h.n * h.m 
--- h.not_p_div_m : ¬ p ∣ h.m      is what makes them unique
-lemma n_m_consistent [fintype G] {H : subgroup G} {p n m : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
-(h1 : is_sylow_subgroup H p) : n = h1.n ∧ m = h1.m := 
-begin
-  rw h1.card_G at hG,
-  have h2 : ¬ p ∣ h1.m, {
-    exact h1.not_p_div_m,
-  },
-  split,
-  {
-    by_contradiction,
-    apply h2,
-
-    -- either h.n > n or reverse
-    -- p ^ (n - h.n) * m = h.m
-    -- p | h.m 
-    -- contradiction
-    sorry,
-  },
-  sorry,
-end 
 
 
 example (p m n : ℕ) (h1: p > 0) (h2: n >= m): p ^ n / p ^ m = p ^ (n - m) :=
@@ -171,29 +143,20 @@ end
 /-- Formulation of second sylow theorem -/
 -- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
--- need hG to unify n and m in different subgroups
-
-
-
--- wondering if im gonna need the sublemmas about n and m here after all 
--- the ones which are part of sylow_subgroup
-theorem sylow_two [fintype G] {p n m : ℕ} (hp : p.prime) (hG : card G = p ^ n * m)
- (H K : subgroup G) ( h₁ : is_sylow_subgroup H p ) (h₂ : is_sylow_subgroup K p) : 
-    subgroups_are_conj H K :=
+-- need to remove unfold of is_sylow_subgroup
+theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup H hp hG hndiv)
+ (h₂ : is_sylow_subgroup K hp hG hndiv) : subgroups_are_conj H K :=
 begin
   have h₃ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
     repeat {rw index_of_subgroup},
-    rw [card_G h₁, card_H h₁, card_H h₂, mul_comm],
-    rw nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) h₁.n),
-    rw ← (n_m_consistent hG h₁).left,
-    rw ← (n_m_consistent hG h₂).left,
-    rw nat.mul_div_cancel,
-    exact pow_pos (pos_of_gt hp.left) n,
+    unfold is_sylow_subgroup at *,
+    rw [hG, h₁, h₂],
   },
   have h₄ : (index_of_subgroup K) ≠ 0, {
     intro h,
     rw h at h₃,
-    apply not_subgroup_index_conj_zero_wrt_p h₁ hp,
+    apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     exact modeq.symm h₃,
   },
   have h₅ : ∀ x : G, conjugate_subgroup K x ≤ H, {
