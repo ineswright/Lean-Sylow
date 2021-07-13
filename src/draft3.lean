@@ -125,6 +125,8 @@ begin
 end
 
 
+#check card_modeq_card_fixed_points
+
 -- useful
 -- use modeq.mod_modeq and transitivity to change between % notation and [MOD] notation
 -- pow_div := p ^ n / p ^ m = p ^ (n - m)
@@ -133,22 +135,36 @@ end
 /-- Formulation of second sylow theorem -/
 -- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
+
+-- in mul_action A B, A is the group and B is the set where B -> f(B)
+-- i have K acting on quotient H
+
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H K : subgroup G) {p m n : ℕ} 
-(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action H K]
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient H)]
 ( h₁ : is_sylow_subgroup H hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
  : subgroups_are_conj H K :=
 begin
-  -- does it need to be fixed_points (quotient H) K ?
-  have h₃ : index_of_subgroup H ≡ card (fixed_points H K) [MOD p], {
-
-    sorry,
-    -- card_modeq_card_fixed_points,
+  haveI : fact (p.prime) := ⟨ hp ⟩ ,
+  have h₃ : ¬ index_of_subgroup H ≡ 0 [MOD p], {
+    intro hn,
+    rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
+    rw is_sylow_subgroup_def at h₁,
+    rw [h₁, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)] at hn,
+    apply hndiv,
+    exact hn,
   },
-  have h₅ : 0 ≠ card (mul_action.fixed_points H K), {
+  have h₄ : index_of_subgroup H ≡ card (fixed_points K (quotient H)) [MOD p], {
+    rw is_sylow_subgroup_def at h₂,
+    rw index_of_subgroup_def2,
+    exact card_modeq_card_fixed_points p h₂,
+  },
+  -- this should probably be 0 < 
+  -- then use trichotomy and this proof
+  have h₅ : 0 ≠ card (fixed_points K (quotient H)), {
     intro hn,
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     rw hn,
-    exact h₃,
+    exact h₄,
   },
   -- have x⁻¹Hx ≤ K and |H| = |K|
   -- so |x⁻¹Hx| (= |H|) = |K|
