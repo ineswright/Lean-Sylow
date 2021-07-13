@@ -38,8 +38,8 @@ variables [fintype G] {H : subgroup G} {p m n : ℕ} {hp : p.prime}
 end is_sylow_subgroup
 
 lemma is_sylow_subgroup_def [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
-(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : (card H = p ^ n) ↔ is_sylow_subgroup H hp hG hndiv
-:= sorry
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup H hp hG hndiv ↔ (card H = p ^ n)
+:= iff.rfl
 
 def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
@@ -114,7 +114,7 @@ lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {H : subgroup G} {p m n : �
 begin
   intro hn,
   rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
-  unfold is_sylow_subgroup at h,
+  rw is_sylow_subgroup_def at h,
   rw [h, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)] at hn,
   apply hndiv,
   exact hn,
@@ -129,14 +129,13 @@ end
 /-- Formulation of second sylow theorem -/
 -- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
--- need to remove unfold of is_sylow_subgroup
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup H hp hG hndiv)
  (h₂ : is_sylow_subgroup K hp hG hndiv) : subgroups_are_conj H K :=
 begin
   have h₃ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
     repeat {rw index_of_subgroup},
-    unfold is_sylow_subgroup at *,
+    rw is_sylow_subgroup_def at *,
     rw [hG, h₁, h₂],
   },
   have h₄ : (index_of_subgroup K) ≠ 0, {
