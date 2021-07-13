@@ -23,7 +23,6 @@ local attribute [instance, priority 10] subtype.fintype set_fintype classical.pr
 quotient H - set of all left cosets
 conjugates, is_conj
 p.prime - predicate
-
 -/
 
 
@@ -71,11 +70,14 @@ begin
 end }
 
 
-def subgroups_are_conj_by_x (H K : subgroup G) (x : G) :=
+def subgroups_conj_by_x (H K : subgroup G) (x : G) :=
   conjugate_subgroup H x = K
 
+lemma subgroups_conj_by_x_def (H K : subgroup G) (x : G) : 
+  conjugate_subgroup H x = K ↔ subgroups_conj_by_x H K x := iff.rfl
+
 def subgroups_are_conj (H K : subgroup G) := 
-  ∃ g : G, subgroups_are_conj_by_x H K g
+  ∃ g : G, subgroups_conj_by_x H K g
 
 def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
   (hndiv: ¬ p ∣ m) : set (subgroup G) :=
@@ -102,9 +104,6 @@ begin
   simp,
 end
 
-
---TODO: remove unfold here
-
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup H,
 -- h₄ : ¬ index_of_subgroup H ≡ 0 [MOD p]
@@ -120,6 +119,11 @@ begin
   exact hn,
 end
 
+example (a b c d : ℕ) (h1: a ≡ b [MOD d]) (h2: b ≡ c [MOD d]) : a ≡ c [MOD d] :=
+begin
+  exact modeq.trans h1 h2,
+end
+
 
 -- useful
 -- use modeq.mod_modeq and transitivity to change between % notation and [MOD] notation
@@ -129,39 +133,29 @@ end
 /-- Formulation of second sylow theorem -/
 -- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
-theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
-(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (H K : subgroup G) ( h₁ : is_sylow_subgroup H hp hG hndiv)
- (h₂ : is_sylow_subgroup K hp hG hndiv) : subgroups_are_conj H K :=
+theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H K : subgroup G) {p m n : ℕ} 
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action H K]
+( h₁ : is_sylow_subgroup H hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
+ : subgroups_are_conj H K :=
 begin
-  have h₃ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
-    repeat {rw index_of_subgroup},
-    rw is_sylow_subgroup_def at *,
-    rw [hG, h₁, h₂],
-  },
-  have h₄ : (index_of_subgroup K) ≠ 0, {
-    intro h,
-    rw h at h₃,
-    apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
-    exact modeq.symm h₃,
-  },
-  have h₅ : ∀ x : G, conjugate_subgroup K x ≤ H, {
-    -- can i rewrite goal to ∀ x ∈ G, ∀ y ∈ conjugate_subgroup K x, y ∈ H
-    intro x,
-    -- want to rewrite conjugate_subgroup to the def of its carrier
-    
+  -- does it need to be fixed_points (quotient H) K ?
+  have h₃ : index_of_subgroup H ≡ card (fixed_points H K) [MOD p], {
 
-    -- ∀ y ∈ K, yxH (∈ quotient K) = xH
-    -- so ∀ y ∈ K, x⁻¹yxH = H
-    -- so ∀ y ∈ K, x⁻¹yx ∈ H
-    -- so x⁻¹Kx ⊆ H and is also a group => conjugate subgroup K x ≤ H
     sorry,
+    -- card_modeq_card_fixed_points,
   },
-  rw subgroups_are_conj,
-  unfold subgroups_are_conj_by_x,
+  have h₅ : 0 ≠ card (mul_action.fixed_points H K), {
+    intro hn,
+    apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
+    rw hn,
+    exact h₃,
+  },
+  -- have x⁻¹Hx ≤ K and |H| = |K|
+  -- so |x⁻¹Hx| (= |H|) = |K|
+  -- and x⁻¹Hx ≤ K so x⁻¹Hx = K
+  -- is def of H and K being conj
 
 
-  -- want to show its equiv to h₄ ie K a normal subgroup of H
-  -- and they have the same size => subgroups are equal
 
 
   -- let H' be the set of left cosets of H

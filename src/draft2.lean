@@ -142,8 +142,7 @@ begin
   split,
   {
     by_contradiction,
-    apply h2,
-
+    apply h2, 
     -- either h.n > n or reverse
     -- p ^ (n - h.n) * m = h.m
     -- p | h.m 
@@ -223,3 +222,24 @@ begin
 
   sorry,
 end
+
+
+-- removed from draft3
+-- have h₃ : (index_of_subgroup K) ≡ (index_of_subgroup H) [MOD p], {
+--     repeat {rw index_of_subgroup},
+--     rw is_sylow_subgroup_def at *,
+--     rw [hG, h₁, h₂],
+--   },
+--   have h₄ : (index_of_subgroup K) ≠ 0, {
+--     -- this can probably be done better
+--     intro h,
+--     rw h at h₃,
+--     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
+--     exact modeq.symm h₃,
+--   },
+--   have h4 : 0 < index_of_subgroup K, {
+--     rw index_of_subgroup_def, 
+--     -- rw card_pos_iff,
+--     -- exact nonempty.intro ⟨1, H.one_mem⟩,
+--     sorry,
+--   },
