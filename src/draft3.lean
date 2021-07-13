@@ -119,14 +119,6 @@ begin
   exact hn,
 end
 
-example (a b c d : ℕ) (h1: a ≡ b [MOD d]) (h2: b ≡ c [MOD d]) : a ≡ c [MOD d] :=
-begin
-  exact modeq.trans h1 h2,
-end
-
-
-#check card_modeq_card_fixed_points
-
 -- useful
 -- use modeq.mod_modeq and transitivity to change between % notation and [MOD] notation
 -- pow_div := p ^ n / p ^ m = p ^ (n - m)
@@ -144,7 +136,8 @@ theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H K : subgroup G) {p m 
 ( h₁ : is_sylow_subgroup H hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
  : subgroups_are_conj H K :=
 begin
-  haveI : fact (p.prime) := ⟨ hp ⟩ ,
+  haveI : fact (p.prime) := ⟨ hp ⟩,
+  -- this is my lemma, used in h₅
   have h₃ : ¬ index_of_subgroup H ≡ 0 [MOD p], {
     intro hn,
     rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
@@ -165,6 +158,9 @@ begin
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     rw hn,
     exact h₄,
+  },
+  have h₆ : ∃ x ∈ H, (conjugate_subgroup K x) ≤ H, {
+    sorry,
   },
   -- have x⁻¹Hx ≤ K and |H| = |K|
   -- so |x⁻¹Hx| (= |H|) = |K|
