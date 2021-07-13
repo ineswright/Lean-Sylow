@@ -26,8 +26,7 @@ p.prime - predicate
 
 -/
 
--- concerned no mention of p.prime - Ines
--- by KBuzzard
+
 def is_sylow_subgroup [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
   card H = p ^ n
@@ -36,10 +35,13 @@ namespace is_sylow_subgroup
 variables [fintype G] {H : subgroup G} {p m n : ℕ} {hp : p.prime}
 {hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup H hp hG hndiv)
 
--- need a def card H lemma here so i can use rw instead of unfold
+lemma card_H : card H = p ^ n := sorry
 
 end is_sylow_subgroup
 
+lemma is_sylow_subgroup_def [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : Prop -- (card H = p ^ n) = is_sylow_subgroup H hp hG hndiv
+:= sorry
 
 def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
@@ -92,7 +94,6 @@ lemma index_of_subgroup_def [fintype G] (H : subgroup G) :
  
 lemma size_subgroup_gt_zero [fintype G] (H : subgroup G) : card H > 0 :=
 begin
-
   sorry,
 end
 
@@ -126,19 +127,10 @@ begin
 end
 
 
-example (p m n : ℕ) (h1: p > 0) (h2: n >= m): p ^ n / p ^ m = p ^ (n - m) :=
-begin
-  exact pow_div h2 h1,
-end
-
-
--- to prove prime is greater than 0 : exact pos_of_gt hp.left
-
 -- useful
 -- use modeq.mod_modeq and transitivity to change between % notation and [MOD] notation
-
-
-
+-- pow_div := p ^ n / p ^ m = p ^ (n - m)
+-- to prove prime is greater than 0 : exact pos_of_gt hp.left
 
 /-- Formulation of second sylow theorem -/
 -- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
@@ -160,6 +152,15 @@ begin
     exact modeq.symm h₃,
   },
   have h₅ : ∀ x : G, conjugate_subgroup K x ≤ H, {
+    -- can i rewrite goal to ∀ x ∈ G, ∀ y ∈ conjugate_subgroup K x, y ∈ H
+    intro x,
+    -- want to rewrite conjugate_subgroup to the def of its carrier
+    
+
+    -- ∀ y ∈ K, yxH (∈ quotient K) = xH
+    -- so ∀ y ∈ K, x⁻¹yxH = H
+    -- so ∀ y ∈ K, x⁻¹yx ∈ H
+    -- so x⁻¹Kx ⊆ H and is also a group => conjugate subgroup K x ≤ H
     sorry,
   },
   rw subgroups_are_conj,
