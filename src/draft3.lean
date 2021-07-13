@@ -35,12 +35,10 @@ namespace is_sylow_subgroup
 variables [fintype G] {H : subgroup G} {p m n : ℕ} {hp : p.prime}
 {hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup H hp hG hndiv)
 
-lemma card_H : card H = p ^ n := sorry
-
 end is_sylow_subgroup
 
 lemma is_sylow_subgroup_def [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
-(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : Prop -- (card H = p ^ n) = is_sylow_subgroup H hp hG hndiv
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : (card H = p ^ n) ↔ is_sylow_subgroup H hp hG hndiv
 := sorry
 
 def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
@@ -92,19 +90,15 @@ noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
 lemma index_of_subgroup_def [fintype G] (H : subgroup G) : 
   index_of_subgroup H = card G / card H := rfl
  
-lemma size_subgroup_gt_zero [fintype G] (H : subgroup G) : card H > 0 :=
-begin
-  sorry,
-end
+lemma card_subgroup_pos [fintype G] (H : subgroup G) : 0 < card H :=
+card_pos_iff.2 $ nonempty.intro ⟨1, H.one_mem⟩
 
+-- lagranges theorem
 lemma index_of_subgroup_def2 [fintype G] (H : subgroup G) :
   index_of_subgroup H = card (quotient H) := 
 begin
-  rw index_of_subgroup_def, 
-  -- lagranges theorem
-  rw card_eq_card_quotient_mul_card_subgroup H,
-  rw nat.mul_div_assoc _ (dvd_refl (card ↥H)),
-  rw nat.div_self (size_subgroup_gt_zero H),
+  rw [index_of_subgroup_def, card_eq_card_quotient_mul_card_subgroup H],
+  rw [nat.mul_div_assoc _ (dvd_refl (card ↥H)), nat.div_self (card_subgroup_pos H)],
   simp,
 end
 
