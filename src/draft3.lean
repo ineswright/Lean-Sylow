@@ -20,39 +20,39 @@ variables {G : Type u} {α : Type v} {β : Type w} [group G]
 local attribute [instance, priority 10] subtype.fintype set_fintype classical.prop_decidable
 
 /-- Useful standard library functions
-quotient H - set of all left cosets
+quotient L - set of all left cosets
 conjugates, is_conj
 p.prime - predicate
 -/
 
 
-def is_sylow_subgroup [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
+def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
-  card H = p ^ n
+  card L = p ^ n
 
 namespace is_sylow_subgroup
-variables [fintype G] {H : subgroup G} {p m n : ℕ} {hp : p.prime}
-{hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup H hp hG hndiv)
+variables [fintype G] {L : subgroup G} {p m n : ℕ} {hp : p.prime}
+{hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup L hp hG hndiv)
 
 end is_sylow_subgroup
 
-lemma is_sylow_subgroup_def [fintype G] (H : subgroup G) {p m n : ℕ} (hp : p.prime)
-(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup H hp hG hndiv ↔ (card H = p ^ n)
+lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
+(hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
 
-def conjugate_subgroup (H : subgroup G) (g : G) : subgroup G :=
-{ carrier := { c | ∃ h ∈ H, c = g⁻¹ * h * g },
+def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
+{ carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
 begin
   use 1,
   split,
-  exact one_mem H,
+  exact one_mem L,
   simp,  
 end,
   mul_mem' := 
 begin
   rintros - - ⟨c, hc, rfl⟩ ⟨d, hd, rfl⟩,
-  exact ⟨c * d, H.mul_mem hc hd, by group⟩,
+  exact ⟨c * d, L.mul_mem hc hd, by group⟩,
 end,
   inv_mem' := 
 begin
@@ -62,7 +62,7 @@ begin
   split,
   {
     rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
-    exact inv_mem H hy,
+    exact inv_mem L hy,
   },
   simp,
   rw [mul_assoc, mul_assoc, mul_assoc, inv_mul_self, mul_one, ← mul_assoc, inv_mul_self],
@@ -70,46 +70,46 @@ begin
 end }
 
 
-def subgroups_conj_by_x (H K : subgroup G) (x : G) :=
-  conjugate_subgroup H x = K
+def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
+  conjugate_subgroup L x = K
 
-lemma subgroups_conj_by_x_def (H K : subgroup G) (x : G) : 
-  conjugate_subgroup H x = K ↔ subgroups_conj_by_x H K x := iff.rfl
+lemma subgroups_conj_by_x_def (L K : subgroup G) (x : G) : 
+  conjugate_subgroup L x = K ↔ subgroups_conj_by_x L K x := iff.rfl
 
-def subgroups_are_conj (H K : subgroup G) := 
-  ∃ g : G, subgroups_conj_by_x H K g
+def subgroups_are_conj (L K : subgroup G) := 
+  ∃ g : G, subgroups_conj_by_x L K g
 
 def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
   (hndiv: ¬ p ∣ m) : set (subgroup G) :=
-  { H | is_sylow_subgroup H hp hG hndiv }
+  { L | is_sylow_subgroup L hp hG hndiv }
 
--- def set_of_conjug_subgroups [fintype G] (H : subgroup G) : set (subgroup G) :=
---   { J | subgroups_are_conj H J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
+-- def set_of_conjug_subgroups [fintype G] (L : subgroup G) : set (subgroup G) :=
+--   { J | subgroups_are_conj L J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
 
-noncomputable def index_of_subgroup [fintype G] (H : subgroup G) : ℕ :=
-  card G / card H
+noncomputable def index_of_subgroup [fintype G] (L : subgroup G) : ℕ :=
+  card G / card L
 
-lemma index_of_subgroup_def [fintype G] (H : subgroup G) : 
-  index_of_subgroup H = card G / card H := rfl
+lemma index_of_subgroup_def [fintype G] (L : subgroup G) : 
+  index_of_subgroup L = card G / card L := rfl
  
-lemma card_subgroup_pos [fintype G] (H : subgroup G) : 0 < card H :=
-card_pos_iff.2 $ nonempty.intro ⟨1, H.one_mem⟩
+lemma card_subgroup_pos [fintype G] (L : subgroup G) : 0 < card L :=
+card_pos_iff.2 $ nonempty.intro ⟨1, L.one_mem⟩
 
 -- lagranges theorem
-lemma index_of_subgroup_def2 [fintype G] (H : subgroup G) :
-  index_of_subgroup H = card (quotient H) := 
+lemma index_of_subgroup_def2 [fintype G] (L : subgroup G) :
+  index_of_subgroup L = card (quotient L) := 
 begin
-  rw [index_of_subgroup_def, card_eq_card_quotient_mul_card_subgroup H],
-  rw [nat.mul_div_assoc _ (dvd_refl (card ↥H)), nat.div_self (card_subgroup_pos H)],
+  rw [index_of_subgroup_def, card_eq_card_quotient_mul_card_subgroup L],
+  rw [nat.mul_div_assoc _ (dvd_refl (card ↥L)), nat.div_self (card_subgroup_pos L)],
   simp,
 end
 
 -- this is my previous h₃ and h₄ combined
--- h₃ : ¬ p ∣ index_of_subgroup H,
--- h₄ : ¬ index_of_subgroup H ≡ 0 [MOD p]
-lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {H : subgroup G} {p m n : ℕ}
-(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup H hp hG hndiv) 
-  : ¬ index_of_subgroup H ≡ 0 [MOD p] :=
+-- h₃ : ¬ p ∣ index_of_subgroup L,
+-- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
+lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : ℕ}
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
+  : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
 begin
   intro hn,
   rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
@@ -125,21 +125,21 @@ end
 -- to prove prime is greater than 0 : exact pos_of_gt hp.left
 
 /-- Formulation of second sylow theorem -/
--- Alternative definition would be set_of_conjug_subgroups H = set_of_sylow_subgroups p
+-- Alternative definition would be set_of_conjug_subgroups L = set_of_sylow_subgroups p
 -- from kbuzzards group theory game
 
 -- in mul_action A B, A is the group and B is the set where B -> f(B)
--- i have K acting on quotient H
+-- i have K acting on quotient L
 
 
-theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H K : subgroup G) {p m n : ℕ} 
-(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient H)]
-( h₁ : is_sylow_subgroup H hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
- : subgroups_are_conj H K :=
+theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient L)]
+( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
+ : subgroups_are_conj L K :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   -- this is my lemma, used in h₅
-  have h₃ : ¬ index_of_subgroup H ≡ 0 [MOD p], {
+  have h₃ : ¬ index_of_subgroup L ≡ 0 [MOD p], {
     intro hn,
     rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
     rw is_sylow_subgroup_def at h₁,
@@ -147,7 +147,7 @@ begin
     apply hndiv,
     exact hn,
   },
-  have h₄ : index_of_subgroup H ≡ card (fixed_points K (quotient H)) [MOD p], {
+  have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
     rw is_sylow_subgroup_def at h₂,
     rw index_of_subgroup_def2,
     exact card_modeq_card_fixed_points p h₂,
@@ -155,43 +155,53 @@ begin
   -- this should probably be 0 < 
   -- then use trichotomy and this proof
   -- can't get trichotomy to take < or nat.lt (wants >) and nat.gt doesn't exist
-  have h₅ : 0 ≠ card (fixed_points K (quotient H)), {
+  -- previously found a card lemma that says ≠ 0 iff ∃ statement
+  have h₅ : 0 ≠ card (fixed_points K (quotient L)), {
     intro hn,
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     rw hn,
     exact h₄,
+    -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
+    -- fixed point
   },
-  have h₆ : ∃ x ∈ H, (conjugate_subgroup K x) ≤ H, {
+  have h₆ : ∃ x ∈ L, (conjugate_subgroup K x) ≤ L, {
     sorry,
   },
-  have h₇ : ∀ x ∈ H, fintype.card (conjugate_subgroup K x) = card K, {
+  have h₇ : ∀ x ∈ L, fintype.card (conjugate_subgroup K x) = card K, {
+    rw is_sylow_subgroup_def at h₁ h₂,
+    intros x hx,
+    rw [h₂, h₁.symm],
+    rw card_eq,
+    apply nonempty.intro,
     sorry,
   },
-  have h₈ : ∃ x ∈ H, ( (conjugate_subgroup K x) = H), {
+  have h₈ : ∃ x ∈ L, ( (conjugate_subgroup K x) = L), {
     sorry,
   },
 
-  -- have x⁻¹Hx ≤ K and |H| = |K|
-  -- so |x⁻¹Hx| (= |H|) = |K|
+
+  -- have x⁻¹Hx ≤ K and |L| = |K|
+  -- so |x⁻¹Hx| (= |L|) = |K|
   -- and x⁻¹Hx ≤ K so x⁻¹Hx = K
-  -- is def of H and K being conj
+  -- is def of L and K being conj
 
 
 
 
-  -- let H' be the set of left cosets of H
+  -- let L' be the set of left cosets of L
       -- this is my aux_action
-  -- let K act on H' by y(xH) = (yx)H, y ∈ K, (x is forming the coset from H to H')
+  -- let K act on L' by y(xH) = (yx)L, y ∈ K, (x is forming the coset from L to L')
   
-  -- |K'| ≡ |H'| (mod p) -- i have this in my lemma
-  -- |H'| = (G : H)  not div by p   -- I have this in my lemma
+  -- |K'| ≡ |L'| (mod p) -- i have this in my lemma
+  -- |L'| = (G : L)  not div by p   -- I have this in my lemma
 
   -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₄
 
   -- let xH ∈ K'
-  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = H, ∀ y ∈ K -- this is my aux_lemma
+  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
-  -- since |H| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
+  -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 
   sorry,
 end
+
