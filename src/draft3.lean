@@ -131,6 +131,7 @@ end
 -- in mul_action A B, A is the group and B is the set where B -> f(B)
 -- i have K acting on quotient H
 
+
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (H K : subgroup G) {p m n : ℕ} 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient H)]
 ( h₁ : is_sylow_subgroup H hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
@@ -153,6 +154,7 @@ begin
   },
   -- this should probably be 0 < 
   -- then use trichotomy and this proof
+  -- can't get trichotomy to take < or nat.lt (wants >) and nat.gt doesn't exist
   have h₅ : 0 ≠ card (fixed_points K (quotient H)), {
     intro hn,
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
@@ -162,6 +164,13 @@ begin
   have h₆ : ∃ x ∈ H, (conjugate_subgroup K x) ≤ H, {
     sorry,
   },
+  have h₇ : ∀ x ∈ H, fintype.card (conjugate_subgroup K x) = card K, {
+    sorry,
+  },
+  have h₈ : ∃ x ∈ H, ( (conjugate_subgroup K x) = H), {
+    sorry,
+  },
+
   -- have x⁻¹Hx ≤ K and |H| = |K|
   -- so |x⁻¹Hx| (= |H|) = |K|
   -- and x⁻¹Hx ≤ K so x⁻¹Hx = K
