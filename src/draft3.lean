@@ -160,11 +160,20 @@ begin
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     rw hn,
     exact h₄,
+    -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
+    -- fixed point
   },
   have h₆ : ∃ x ∈ H, (conjugate_subgroup K x) ≤ H, {
+    
     sorry,
   },
-  have h₇ : ∀ x ∈ H, fintype.card (conjugate_subgroup K x) = card K, {
+  have h₇ : ∀ x ∈ H, card (conjugate_subgroup K x) = card K, {
+    rw is_sylow_subgroup_def at h₁ h₂,
+    intros x hx,
+    rw [h₂, h₁.symm],
+    rw card_eq,
+    apply nonempty.intro,
+    unfold 
     sorry,
   },
   have h₈ : ∃ x ∈ H, ( (conjugate_subgroup K x) = H), {
