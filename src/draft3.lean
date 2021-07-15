@@ -152,11 +152,8 @@ begin
     rw index_of_subgroup_def2,
     exact card_modeq_card_fixed_points p h₂,
   },
-  -- this should probably be 0 < 
-  -- then use trichotomy and this proof
-  -- can't get trichotomy to take < or nat.lt (wants >) and nat.gt doesn't exist
   -- previously found a card lemma that says ≠ 0 iff ∃ statement
-  have h₅ : 0 ≠ card (fixed_points K (quotient L)), {
+  have h₅' : 0 ≠ card (fixed_points K (quotient L)), {
     intro hn,
     apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
     rw hn,
@@ -164,7 +161,24 @@ begin
     -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
     -- fixed point
   },
+  have h₅ : 0 < card (fixed_points K (quotient L)), {
+    apply lt_of_le_of_ne _ h₅',
+    apply le_of_not_gt,
+    exact (card ↥(fixed_points ↥K (quotient L))).not_lt_zero,
+  },
   have h₆ : ∃ x ∈ L, (conjugate_subgroup K x) ≤ L, {
+    rw card_pos_iff at h₅,
+    apply nonempty.elim h₅,
+    rintro ⟨fp, hfp⟩,
+    rw mul_action.mem_fixed_points at hfp,
+    --do i need orbit stabiliser theorem for this?
+    -- fp is a left coset so of form xK. I need to extract x
+  
+    -- need to extract an x from fixed_points K st 
+
+  -- let xH ∈ K'
+  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
+  -- so x⁻¹Hx ≤ K -- this is theorem h₄
     sorry,
   },
   have h₇ : ∀ x ∈ L, fintype.card (conjugate_subgroup K x) = card K, {
@@ -173,6 +187,7 @@ begin
     rw [h₂, h₁.symm],
     rw card_eq,
     apply nonempty.intro,
+    
     sorry,
   },
   have h₈ : ∃ x ∈ L, ( (conjugate_subgroup K x) = L), {
@@ -205,3 +220,7 @@ begin
   sorry,
 end
 
+example (a b : ℕ) (a ≥ b) : b ≤ a :=
+begin
+  exact H
+end
