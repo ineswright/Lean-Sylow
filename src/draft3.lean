@@ -135,7 +135,7 @@ end
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient L)]
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
- : subgroups_are_conj L K :=
+ : subgroups_are_conj K L :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   -- this is my lemma, used in h₅
@@ -153,18 +153,17 @@ begin
     exact card_modeq_card_fixed_points p h₂,
   },
   -- previously found a card lemma that says ≠ 0 iff ∃ statement
-  have h₅' : 0 ≠ card (fixed_points K (quotient L)), {
-    intro hn,
-    apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
-    rw hn,
-    exact h₄,
-    -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
-    -- fixed point
-  },
   have h₅ : 0 < card (fixed_points K (quotient L)), {
-    apply lt_of_le_of_ne _ h₅',
-    apply le_of_not_gt,
-    exact (card ↥(fixed_points ↥K (quotient L))).not_lt_zero,
+    apply lt_of_le_of_ne _ _, {
+      exact le_of_not_gt (card ↥(fixed_points ↥K (quotient L))).not_lt_zero,
+    }, {
+      intro hn,
+      apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
+      rw hn,
+      exact h₄,
+      -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
+      -- fixed point
+    },
   },
   have h₆ : ∃ x ∈ L, (conjugate_subgroup K x) ≤ L, {
     rw card_pos_iff at h₅,
@@ -191,8 +190,14 @@ begin
     sorry,
   },
   have h₈ : ∃ x ∈ L, ( (conjugate_subgroup K x) = L), {
+    -- use x out of h₆
+    -- combine h₆ and h₇ and bam
     sorry,
   },
+  rw subgroups_are_conj,
+  unfold subgroups_conj_by_x,
+  -- need some alpha reduction then this should work
+  -- exact h₈,
 
 
   -- have x⁻¹Hx ≤ K and |L| = |K|
@@ -218,9 +223,4 @@ begin
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 
   sorry,
-end
-
-example (a b : ℕ) (a ≥ b) : b ≤ a :=
-begin
-  exact H
 end
