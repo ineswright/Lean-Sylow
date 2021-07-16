@@ -107,7 +107,7 @@ end
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup L,
 -- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
-lemma not_subgroup_index_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : ℕ}
+lemma subgroup_index_not_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
 begin
@@ -158,14 +158,14 @@ begin
       exact le_of_not_gt (card ↥(fixed_points ↥K (quotient L))).not_lt_zero,
     }, {
       intro hn,
-      apply not_subgroup_index_conj_zero_wrt_p hp hG hndiv h₁,
+      apply subgroup_index_not_conj_zero_wrt_p hp hG hndiv h₁,
       rw hn,
       exact h₄,
       -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
       -- fixed point
     },
   },
-  have h₆ : ∃ x ∈ L, (conjugate_subgroup K x) ≤ L, {
+  have h₆ : ∃ x : G, (conjugate_subgroup K x) ≤ L, {
     rw card_pos_iff at h₅,
     apply nonempty.elim h₅,
     rintro ⟨fp, hfp⟩,
@@ -180,42 +180,34 @@ begin
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
     sorry,
   },
-  have h₇ : ∀ x ∈ L, fintype.card (conjugate_subgroup K x) = card K, {
+  have h₇ : ∀ x : G, fintype.card (conjugate_subgroup K x) = card K, {
     rw is_sylow_subgroup_def at h₁ h₂,
-    intros x hx,
+    intro x,
     rw [h₂, h₁.symm],
     rw card_eq,
     apply nonempty.intro,
     
     sorry,
   },
-  have h₈ : ∃ x ∈ L, ( (conjugate_subgroup K x) = L), {
-    -- use x out of h₆
+  have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
+    apply exists.elim h₆,
+    intros g hx,
+    use g,
+    
+    -- type problem - wants to unify (conjugate_subgroup K x) and top
+    -- apply subgroup.eq_top_of_card_eq _ _,
+
     -- combine h₆ and h₇ and bam
     sorry,
   },
+  -- remove h₈ and make it part of this proof
   rw subgroups_are_conj,
   unfold subgroups_conj_by_x,
-  -- need some alpha reduction then this should work
-  -- exact h₈,
-
-
-  -- have x⁻¹Hx ≤ K and |L| = |K|
-  -- so |x⁻¹Hx| (= |L|) = |K|
-  -- and x⁻¹Hx ≤ K so x⁻¹Hx = K
-  -- is def of L and K being conj
-
-
-
+  -- rw ← subgroups_conj_by_x_def, -- says can't find instance of pattern?
+  exact h₈,
 
   -- let L' be the set of left cosets of L
-      -- this is my aux_action
   -- let K act on L' by y(xH) = (yx)L, y ∈ K, (x is forming the coset from L to L')
-  
-  -- |K'| ≡ |L'| (mod p) -- i have this in my lemma
-  -- |L'| = (G : L)  not div by p   -- I have this in my lemma
-
-  -- so |K'| ≠ 0 -- index K ≠ 0 -- i have this as theorem h₄
 
   -- let xH ∈ K'
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
