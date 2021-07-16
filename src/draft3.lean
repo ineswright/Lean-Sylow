@@ -40,6 +40,7 @@ lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.p
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
 
+
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
@@ -74,7 +75,7 @@ def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
   conjugate_subgroup L x = K
 
 lemma subgroups_conj_by_x_def (L K : subgroup G) (x : G) : 
-  conjugate_subgroup L x = K ↔ subgroups_conj_by_x L K x := iff.rfl
+   subgroups_conj_by_x L K x ↔ conjugate_subgroup L x = K := iff.rfl
 
 def subgroups_are_conj (L K : subgroup G) := 
   ∃ g : G, subgroups_conj_by_x L K g
@@ -139,14 +140,6 @@ theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m 
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   -- this is my lemma, used in h₅
-  have h₃ : ¬ index_of_subgroup L ≡ 0 [MOD p], {
-    intro hn,
-    rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
-    rw is_sylow_subgroup_def at h₁,
-    rw [h₁, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)] at hn,
-    apply hndiv,
-    exact hn,
-  },
   have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
     rw is_sylow_subgroup_def at h₂,
     rw index_of_subgroup_def2,
@@ -170,6 +163,10 @@ begin
     apply nonempty.elim h₅,
     rintro ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
+    unfold quotient_group.quotient at fp,
+    unfold left_rel at fp,
+    -- unfold quotient at fp,
+
     --do i need orbit stabiliser theorem for this?
     -- fp is a left coset so of form xK. I need to extract x
   
@@ -180,13 +177,15 @@ begin
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
     sorry,
   },
-  have h₇ : ∀ x : G, fintype.card (conjugate_subgroup K x) = card K, {
+  have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card K, {
     rw is_sylow_subgroup_def at h₁ h₂,
     intro x,
     rw [h₂, h₁.symm],
-    rw card_eq,
-    apply nonempty.intro,
     
+    -- rw card_eq,
+    -- apply nonempty.intro,
+    -- then need to construct a bijection between K and conjugate_subgroup K x
+    -- bijection is given by f(k) = x⁻¹kx
     sorry,
   },
   have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
@@ -195,7 +194,6 @@ begin
     use g,
     
     -- type problem - wants to unify (conjugate_subgroup K x) and top
-    -- apply subgroup.eq_top_of_card_eq _ _,
 
     -- combine h₆ and h₇ and bam
     sorry,
@@ -203,7 +201,7 @@ begin
   -- remove h₈ and make it part of this proof
   rw subgroups_are_conj,
   unfold subgroups_conj_by_x,
-  -- rw ← subgroups_conj_by_x_def, -- says can't find instance of pattern?
+  -- rw subgroups_conj_by_x_def, -- says can't find instance of pattern?
   exact h₈,
 
   -- let L' be the set of left cosets of L
@@ -213,6 +211,4 @@ begin
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
-
-  sorry,
 end
