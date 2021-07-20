@@ -10,7 +10,6 @@ import algebra.group.conj
 import group_theory.sylow
 import tactic
 
-
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
 open_locale big_operators
@@ -116,7 +115,7 @@ begin
 end
 
 
-open_locale coset
+-- open_locale coset
 
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
@@ -124,13 +123,11 @@ theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m 
  : subgroups_are_conj K L :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
-  -- this is my lemma, used in h₅
   have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
     rw is_sylow_subgroup_def at h₂,
     rw index_of_subgroup_def2,
     exact card_modeq_card_fixed_points p h₂,
   },
-  -- previously found a card lemma that says ≠ 0 iff ∃ statement
   have h₅ : 0 < card (fixed_points K (quotient L)), {
     apply lt_of_le_of_ne _ _, {
       exact le_of_not_gt (card ↥(fixed_points ↥K (quotient L))).not_lt_zero,
@@ -139,8 +136,6 @@ begin
       apply subgroup_index_not_conj_zero_wrt_p hp hG hndiv h₁,
       rw hn,
       exact h₄,
-      -- alternatively use card_ne_zero_of_mem, and a proof that there is at least one 
-      -- fixed point
     },
   },
   have h₆ : ∃ x : G, (conjugate_subgroup K x) ≤ L, {
@@ -178,7 +173,6 @@ begin
     intros g hx,
     use g,
     
-    -- type problem - wants to unify (conjugate_subgroup K x) and top
 
     -- combine h₆ and h₇ and bam
     sorry,
