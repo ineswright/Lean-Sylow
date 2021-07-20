@@ -163,10 +163,16 @@ begin
     apply nonempty.elim h₅,
     rintro ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
-    unfold quotient_group.quotient at fp,
-    unfold left_rel at fp,
-    -- unfold quotient at fp,
+    
+    -- apply induction_on fp,
+    -- intro g,
+    -- use g,
+    
+    -- unfold quotient_group.quotient at fp,
+    -- unfold left_rel at fp,
 
+    -- rw ← mem_stabilizer_iff at hfp, -- after extracting x from hfp
+  
     --do i need orbit stabiliser theorem for this?
     -- fp is a left coset so of form xK. I need to extract x
   
@@ -181,9 +187,9 @@ begin
     rw is_sylow_subgroup_def at h₁ h₂,
     intro x,
     rw [h₂, h₁.symm],
-    
-    -- rw card_eq,
-    -- apply nonempty.intro,
+    rw card_eq,
+    apply nonempty.intro,
+
     -- then need to construct a bijection between K and conjugate_subgroup K x
     -- bijection is given by f(k) = x⁻¹kx
     sorry,
@@ -212,3 +218,4 @@ begin
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 end
+#check quotient_group.quotient
