@@ -118,49 +118,6 @@ end
 
 open_locale coset
 
-abbreviation left_cosets (L : subgroup G) : Type* := 
-{ S : set G // ∃ g : G, g *l L = S }
-
-namespace left_cosets
-
-variables {L : subgroup G}
-
-@[simps] def smul (g : G) (s : left_cosets L) : left_cosets L :=
-⟨g *l s.1, begin
-  rcases s with ⟨_, g', rfl⟩,
-  simp [left_coset_assoc],
-end⟩
-
-/-- Use notation • for smul -/
-instance : has_scalar G (left_cosets L) := ⟨smul⟩
-
-/-- Use notation ∈ for is an element of -/
-instance : set_like (left_cosets L) G := 
-{ coe := subtype.val,
-  coe_injective' := subtype.coe_injective }
-
-@[ext] theorem ext {p q : left_cosets L} (h : ∀ x, x ∈ p ↔ x ∈ q) : p = q := 
-set_like.ext h
-
-lemma mem_smul (g h : G) (s : left_cosets L) : h ∈ g • s ↔ g⁻¹ * h ∈ s :=
-by simp [(•), ← set_like.mem_coe, left_coset]
-
-def aux_action (g : G) (s : left_cosets L) : mul_action G (left_cosets L) :=
-{ smul := (•),
-  one_smul := begin
-    intro t,
-    ext,
-    rw mem_smul,
-    simp,
-  end,
-  mul_smul := begin
-    intros t u v,
-    ext,
-    simp only [mem_smul],
-    congr' 2,
-    group,
-end }
-
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
@@ -191,7 +148,7 @@ begin
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
     let a := quotient.out' fp,
-    use quotient.out' fp,
+    use a,
     
     -- rw ← mem_stabilizer_iff at hfp, -- after extracting x from hfp
   
