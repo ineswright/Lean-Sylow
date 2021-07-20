@@ -17,7 +17,8 @@ open_locale big_operators
 universes u v w
 variables {G : Type u} {α : Type v} {β : Type w} [group G]
 
-local attribute [instance, priority 10] subtype.fintype set_fintype classical.prop_decidable
+-- local attribute [instance, priority 10] subtype.fintype set_fintype classical.prop_decidable
+open_locale classical
 
 /-- Useful standard library functions
 quotient L - set of all left cosets
@@ -30,16 +31,9 @@ def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
   card L = p ^ n
 
-namespace is_sylow_subgroup
-variables [fintype G] {L : subgroup G} {p m n : ℕ} {hp : p.prime}
-{hG : card G = p ^ n * m} {hndiv: ¬ p ∣ m} (h : is_sylow_subgroup L hp hG hndiv)
-
-end is_sylow_subgroup
-
 lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
-
 
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
@@ -57,6 +51,8 @@ begin
 end,
   inv_mem' := 
 begin
+  -- come back to this it should only be a few lines
+  -- using simp and not closing a goal is bad
   simp,
   intros x y hy hx,
   use (g * x * g⁻¹)⁻¹,
@@ -65,9 +61,7 @@ begin
     rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
     exact inv_mem L hy,
   },
-  simp,
-  rw [mul_assoc, mul_assoc, mul_assoc, inv_mul_self, mul_one, ← mul_assoc, inv_mul_self],
-  simp,
+  group,
 end }
 
 
@@ -105,6 +99,7 @@ begin
   simp,
 end
 
+-- splitting into two 3 line lemmas is more readable
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup L,
 -- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
@@ -120,21 +115,45 @@ begin
   exact hn,
 end
 
--- useful
--- use modeq.mod_modeq and transitivity to change between % notation and [MOD] notation
--- pow_div := p ^ n / p ^ m = p ^ (n - m)
--- to prove prime is greater than 0 : exact pos_of_gt hp.left
 
-/-- Formulation of second sylow theorem -/
--- Alternative definition would be set_of_conjug_subgroups L = set_of_sylow_subgroups p
--- from kbuzzards group theory game
+open_locale coset
 
--- in mul_action A B, A is the group and B is the set where B -> f(B)
--- i have K acting on quotient L
+def left_cosets (L : subgroup G) : set (set G) := 
+set.range (λ g, g *l (L : set G))
 
+def left_cosets'(L : subgroup G) : set (set G) := 
+{ S : set G | ∃ g : G, g *l L = S }
+
+lemma left_cosets'_def (L : subgroup G) :
+  left_cosets' L = { S : set G | ∃ g : G, g *l L = S } := rfl
+
+lemma left_cosets_def_equal (L : subgroup G) :
+  left_cosets L = left_cosets' L := rfl
+
+namespace left_cosets
+
+variables (L : subgroup G)
+
+def left_cosets.smul (g : G) (s : left_cosets L) : left_cosets L :=
+⟨g *l s.1, begin
+  rcases s with ⟨_, g', rfl⟩,
+  simp [left_coset_assoc, left_cosets_def_equal, left_cosets'_def],
+end⟩
+
+
+def aux_action (g : G) (s : left_cosets L) : mul_action G (left_cosets L) :=
+{ smul := left_cosets.smul _,
+  one_smul := begin
+    intro t,
+    sorry,
+  end,
+  mul_smul := begin
+    intros t u v,
+    sorry,
+  end }
 
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
-(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) [mul_action K (quotient L)]
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
  : subgroups_are_conj K L :=
 begin
@@ -160,9 +179,9 @@ begin
   },
   have h₆ : ∃ x : G, (conjugate_subgroup K x) ≤ L, {
     rw card_pos_iff at h₅,
-    apply nonempty.elim h₅,
-    rintro ⟨fp, hfp⟩,
+    rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
+    let a := quotient.out' fp,
     
     -- apply induction_on fp,
     -- intro g,
@@ -179,16 +198,16 @@ begin
     -- need to extract an x from fixed_points K st 
 
   -- let xH ∈ K'
-  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
-  -- so x⁻¹Hx ≤ K -- this is theorem h₄
+  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K
+  -- so x⁻¹Hx ≤ K
     sorry,
   },
-  have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card K, {
+  have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card L, {
     rw is_sylow_subgroup_def at h₁ h₂,
     intro x,
-    rw [h₂, h₁.symm],
-    rw card_eq,
-    apply nonempty.intro,
+    -- rw [h₂, h₁.symm],
+    -- rw card_eq,
+    -- apply nonempty.intro,
 
     -- then need to construct a bijection between K and conjugate_subgroup K x
     -- bijection is given by f(k) = x⁻¹kx
@@ -211,11 +230,10 @@ begin
   exact h₈,
 
   -- let L' be the set of left cosets of L
-  -- let K act on L' by y(xH) = (yx)L, y ∈ K, (x is forming the coset from L to L')
+  -- let K act on L' by y(xL) = (yx)L, y ∈ K, (x is forming the coset from L to L')
 
   -- let xH ∈ K'
   -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 end
-#check quotient_group.quotient
