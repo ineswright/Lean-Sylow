@@ -103,16 +103,23 @@ end
 -- this is my previous h₃ and h₄ combined
 -- h₃ : ¬ p ∣ index_of_subgroup L,
 -- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
+
+lemma subgroup_index_equal [fintype G] {L : subgroup G} {p m n : ℕ}
+(hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
+  : index_of_subgroup L = m :=
+begin
+  rw is_sylow_subgroup_def at h,
+  rw [index_of_subgroup_def, hG, h, nat.mul_div_cancel_left _ (pow_pos (pos_of_gt hp.left) n)],
+end
+
 lemma subgroup_index_not_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
 begin
+  rw subgroup_index_equal hp hG hndiv h,
   intro hn,
-  rw [nat.modeq.modeq_zero_iff, index_of_subgroup, hG] at hn,
-  rw is_sylow_subgroup_def at h,
-  rw [h, mul_comm, nat.mul_div_cancel _ (pow_pos (pos_of_gt hp.left) n)] at hn,
   apply hndiv,
-  exact hn,
+  exact modeq.modeq_zero_iff.mp hn,
 end
 
 
