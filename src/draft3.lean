@@ -28,6 +28,7 @@ lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.p
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
 
+-- TODO: simplify proofs to a few lines
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
@@ -44,8 +45,6 @@ begin
 end,
   inv_mem' := 
 begin
-  -- come back to this it should only be a few lines
-  -- using simp and not closing a goal is bad
   simp only [and_imp, exists_prop, set.mem_set_of_eq, exists_imp_distrib],
   intros x y hy hx,
   use (g * x * g⁻¹)⁻¹,
@@ -97,6 +96,7 @@ end
 -- h₃ : ¬ p ∣ index_of_subgroup L,
 -- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
 
+-- could rewrite this to take card L directly then would be shorter
 lemma subgroup_index_equal [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : index_of_subgroup L = m :=
@@ -118,39 +118,48 @@ end
 
 open_locale coset
 
-def left_cosets (L : subgroup G) : set (set G) := 
-set.range (λ g, g *l (L : set G))
-
-def left_cosets'(L : subgroup G) : set (set G) := 
-{ S : set G | ∃ g : G, g *l L = S }
-
-lemma left_cosets'_def (L : subgroup G) :
-  left_cosets' L = { S : set G | ∃ g : G, g *l L = S } := rfl
-
-lemma left_cosets_def_equal (L : subgroup G) :
-  left_cosets L = left_cosets' L := rfl
+abbreviation left_cosets (L : subgroup G) : Type* := 
+{ S : set G // ∃ g : G, g *l L = S }
 
 namespace left_cosets
 
-variables (L : subgroup G)
+variables {L : subgroup G}
 
-def left_cosets.smul (g : G) (s : left_cosets L) : left_cosets L :=
+@[simps] def smul (g : G) (s : left_cosets L) : left_cosets L :=
 ⟨g *l s.1, begin
   rcases s with ⟨_, g', rfl⟩,
-  simp [left_coset_assoc, left_cosets_def_equal, left_cosets'_def],
+  simp [left_coset_assoc],
 end⟩
 
+/-- Use notation • for smul -/
+instance : has_scalar G (left_cosets L) := ⟨smul⟩
+
+/-- Use notation ∈ for is an element of -/
+instance : set_like (left_cosets L) G := 
+{ coe := subtype.val,
+  coe_injective' := subtype.coe_injective }
+
+@[ext] theorem ext {p q : left_cosets L} (h : ∀ x, x ∈ p ↔ x ∈ q) : p = q := 
+set_like.ext h
+
+lemma mem_smul (g h : G) (s : left_cosets L) : h ∈ g • s ↔ g⁻¹ * h ∈ s :=
+by simp [(•), ← set_like.mem_coe, left_coset]
 
 def aux_action (g : G) (s : left_cosets L) : mul_action G (left_cosets L) :=
-{ smul := left_cosets.smul _,
+{ smul := (•),
   one_smul := begin
     intro t,
-    sorry,
+    ext,
+    rw mem_smul,
+    simp,
   end,
   mul_smul := begin
     intros t u v,
-    sorry,
-  end }
+    ext,
+    simp only [mem_smul],
+    congr' 2,
+    group,
+end }
 
 theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
@@ -182,14 +191,8 @@ begin
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
     let a := quotient.out' fp,
+    use quotient.out' fp,
     
-    -- apply induction_on fp,
-    -- intro g,
-    -- use g,
-    
-    -- unfold quotient_group.quotient at fp,
-    -- unfold left_rel at fp,
-
     -- rw ← mem_stabilizer_iff at hfp, -- after extracting x from hfp
   
     --do i need orbit stabiliser theorem for this?
