@@ -20,13 +20,6 @@ variables {G : Type u} {α : Type v} {β : Type w} [group G]
 -- local attribute [instance, priority 10] subtype.fintype set_fintype classical.prop_decidable
 open_locale classical
 
-/-- Useful standard library functions
-quotient L - set of all left cosets
-conjugates, is_conj
-p.prime - predicate
--/
-
-
 def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
   card L = p ^ n
@@ -53,7 +46,7 @@ end,
 begin
   -- come back to this it should only be a few lines
   -- using simp and not closing a goal is bad
-  simp,
+  simp only [and_imp, exists_prop, set.mem_set_of_eq, exists_imp_distrib],
   intros x y hy hx,
   use (g * x * g⁻¹)⁻¹,
   split,
