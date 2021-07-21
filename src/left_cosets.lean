@@ -4,7 +4,6 @@ import tactic
 universes u v w
 variables {G : Type u} {α : Type v} {β : Type w} [group G]
 
-
 open_locale coset
 
 abbreviation left_cosets (L : subgroup G) : Type* := 
@@ -34,7 +33,7 @@ set_like.ext h
 lemma mem_smul (g h : G) (s : left_cosets L) : h ∈ g • s ↔ g⁻¹ * h ∈ s :=
 by simp [(•), ← set_like.mem_coe, left_coset]
 
-def aux_action (g : G) (s : left_cosets L) : mul_action G (left_cosets L) :=
+def aux_action : mul_action G (left_cosets L) :=
 { smul := (•),
   one_smul := begin
     intro t,

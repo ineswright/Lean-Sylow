@@ -9,6 +9,7 @@ import data.list.rotate
 import algebra.group.conj
 import group_theory.sylow
 import tactic
+import left_cosets
 
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
@@ -90,12 +91,6 @@ begin
   simp,
 end
 
--- splitting into two 3 line lemmas is more readable
--- this is my previous h₃ and h₄ combined
--- h₃ : ¬ p ∣ index_of_subgroup L,
--- h₄ : ¬ index_of_subgroup L ≡ 0 [MOD p]
-
--- could rewrite this to take card L directly then would be shorter
 lemma subgroup_index_equal [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : index_of_subgroup L = m :=
@@ -115,12 +110,13 @@ begin
 end
 
 
--- open_locale coset
+open_locale coset
 
-theorem sylow_two [fintype G] {p n m : ℕ} [fintype G] (L K : subgroup G) {p m n : ℕ} 
+theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
- : subgroups_are_conj K L :=
+-- (ha : left_cosets.aux_action) 
+: subgroups_are_conj K L :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
@@ -144,11 +140,6 @@ begin
     rw mul_action.mem_fixed_points at hfp,
     let a := quotient.out' fp,
     use a,
-    
-    -- rw ← mem_stabilizer_iff at hfp, -- after extracting x from hfp
-  
-    --do i need orbit stabiliser theorem for this?
-    -- fp is a left coset so of form xK. I need to extract x
   
     -- need to extract an x from fixed_points K st 
 
@@ -160,7 +151,9 @@ begin
   have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card L, {
     rw is_sylow_subgroup_def at h₁ h₂,
     intro x,
-    -- rw [h₂, h₁.symm],
+    rw [h₁, h₂.symm],
+    
+
     -- rw card_eq,
     -- apply nonempty.intro,
 
