@@ -144,7 +144,10 @@ begin
     use y,
     intros c hc,
     rw conjugate_subgroup_def at hc,
-   
+    rcases hc with ⟨x, hx, rfl⟩,
+    -- i guess i want these both as sets? to fix type problem
+    -- suffices h : quotient_group.mk (y⁻¹ * x * y) = L,
+
   -- let xL ∈ fixed points of action
   -- then yxL = xL, ∀ y ∈ K     so x⁻¹yxL = L, ∀ y ∈ K
   -- so x⁻¹Lx ≤ K
