@@ -56,6 +56,8 @@ begin
   group,
 end }
 
+lemma conjugate_subgroup_def (L : subgroup G) (x g : G) : 
+  x ∈ conjugate_subgroup L g ↔ x ∈  { c | ∃ h ∈ L, c = g⁻¹ * h * g } := iff.rfl
 
 def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
   conjugate_subgroup L x = K
@@ -109,8 +111,8 @@ begin
   exact modeq.modeq_zero_iff.mp hn,
 end
 
-
 open_locale coset
+
 
 theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
@@ -138,14 +140,14 @@ begin
     rw card_pos_iff at h₅,
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
-    let a := quotient.out' fp,
-    use a,
-  
-    -- need to extract an x from fixed_points K st 
-
-  -- let xH ∈ K'
-  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K
-  -- so x⁻¹Hx ≤ K
+    let y := quotient.out' fp,
+    use y,
+    intros c hc,
+    rw conjugate_subgroup_def at hc,
+   
+  -- let xL ∈ fixed points of action
+  -- then yxL = xL, ∀ y ∈ K     so x⁻¹yxL = L, ∀ y ∈ K
+  -- so x⁻¹Lx ≤ K
     sorry,
   },
   have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card L, {
@@ -184,3 +186,5 @@ begin
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 end
+
+example (G : Type) [group G] (L : subgroup G) : mul_action G (quotient L) := mul_action.quotient L
