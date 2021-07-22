@@ -41,7 +41,7 @@ end,
 begin
   simp only [and_imp, exists_prop, set.mem_set_of_eq, exists_imp_distrib],
   intros x y hy hx,
-  refine ⟨ (g * x * g⁻¹)⁻¹, _, by group⟩,
+  refine ⟨(g * x * g⁻¹)⁻¹, _, by group⟩,
   rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
   exact inv_mem L hy,
 end }
@@ -87,14 +87,15 @@ end
 def subgroup_to_conjugate (x : G) (L : subgroup G) -- (K : ↥L) 
 : ↥(conjugate_subgroup L x) := sorry
 
-def conjugate_to_subgroup {L : subgroup G} {x : G} (K : (conjugate_subgroup L x)) 
+def conjugate_to_subgroup {L : subgroup G} {x : G} (y : (conjugate_subgroup L x)) 
 : ↥L := sorry
 
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
-conjugate_subgroup L x ≃ L := --{ to_fun := conjugate_to_subgroup,
-  -- inv_fun := _,
-  -- left_inv := _,
-  -- right_inv := _ }
+conjugate_subgroup L x ≃ L := sorry
+-- { to_fun := conjugate_to_subgroup,
+--   inv_fun := _,
+--   left_inv := _,
+--   right_inv := _ }
 
 
 
@@ -149,6 +150,12 @@ begin
     rw conjugate_subgroup_def at hc,
     rcases hc with ⟨x, hx, rfl⟩,
 
+
+    -- fp : yL
+    -- y : G
+    -- x * yL = yL
+    -- y⁻¹ * x * yL = y⁻¹ * yL = L
+
   -- let xL ∈ fixed points of action
   -- then yxL = xL, ∀ y ∈ K     so x⁻¹yxL = L, ∀ y ∈ K
   -- so x⁻¹Lx ≤ K
@@ -161,23 +168,28 @@ begin
     apply fintype.card_congr,
     exact subgroup_bijects_conjugate K x,
   },
+  have h₇' : ∀ x : G, card L ≤ card (conjugate_subgroup K x), {
+    intro x,
+    exact (h₇ x).ge,
+  },
   have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
     apply exists.elim h₆,
-    intros g hx,
-    use g,
-    
-
-    -- combine h₆ and h₇ and bam
+    intros x hx,
+    use x,
+    -- is the problem because i have ≤ and not ⊆ ?
+    -- exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
     sorry,
   },
-  rw subgroups_are_conj,
   exact h₈,
+end
 
-  -- let L' be the set of left cosets of L
-  -- let K act on L' by y(xL) = (yx)L, y ∈ K, (x is forming the coset from L to L')
+-- example {A : Type u} [group A] [fintype A] (H K : subgroup A) (h1: H ⊆ K) 
+-- (h2 : card K ≤ card H) : H = K :=
+-- begin
+--   exact eq_of_subset_of_card_le h1 h2,
+--   sorry,
+-- end
 
-  -- let xH ∈ K'
-  -- then yxH = xH, ∀ y ∈ K     so x⁻¹yxH = L, ∀ y ∈ K -- this is my aux_lemma
-  -- so x⁻¹Hx ≤ K -- this is theorem h₄
-  -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
+example ( a b : ℕ) (h : a = b) : b ≤ a := begin
+  exact eq.ge h,
 end
