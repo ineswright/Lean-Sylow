@@ -1,23 +1,20 @@
 /- Need to check how many of these I'm actually using -/
-import group_theory.group_action
-import group_theory.group_action.basic
-import group_theory.quotient_group
-import group_theory.order_of_element
-import data.zmod.basic
-import data.fintype.card
-import data.list.rotate
-import algebra.group.conj
+-- import group_theory.group_action
+-- import group_theory.quotient_group
+-- import group_theory.order_of_element
+-- import data.zmod.basic
+-- import data.fintype.card
+-- import data.list.rotate
+-- does this import all of group_theory.sylows imports?
 import group_theory.sylow
 import tactic
-import left_cosets
+-- import algebra.group.conj
 
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
-open_locale big_operators
-universes u v w
-variables {G : Type u} {α : Type v} {β : Type w} [group G]
+universe u
+variables {G : Type u} [group G]
 
--- local attribute [instance, priority 10] subtype.fintype set_fintype classical.prop_decidable
 open_locale classical
 
 def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
@@ -62,15 +59,13 @@ lemma conjugate_subgroup_def (L : subgroup G) (x g : G) :
 def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
   conjugate_subgroup L x = K
 
-lemma subgroups_conj_by_x_def (L K : subgroup G) (x : G) : 
-   subgroups_conj_by_x L K x ↔ conjugate_subgroup L x = K := iff.rfl
-
 def subgroups_are_conj (L K : subgroup G) := 
   ∃ g : G, subgroups_conj_by_x L K g
 
-def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
-  (hndiv: ¬ p ∣ m) : set (subgroup G) :=
-  { L | is_sylow_subgroup L hp hG hndiv }
+-- not actually using rn- maybe delete
+-- def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
+--   (hndiv: ¬ p ∣ m) : set (subgroup G) :=
+--   { L | is_sylow_subgroup L hp hG hndiv }
 
 -- def set_of_conjug_subgroups [fintype G] (L : subgroup G) : set (subgroup G) :=
 --   { J | subgroups_are_conj L J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
@@ -91,9 +86,9 @@ begin
   rw [index_of_subgroup_def, card_eq_card_quotient_mul_card_subgroup L],
   rw [nat.mul_div_assoc _ (dvd_refl (card ↥L)), nat.div_self (card_subgroup_pos L)],
   simp,
-end
- 
+end 
 
+-- TODO
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
 conjugate_subgroup L x ≃ L := { to_fun := _,
   inv_fun := _,
@@ -117,8 +112,6 @@ begin
   apply hndiv,
   exact modeq.modeq_zero_iff.mp hn,
 end
-
-open_locale coset
 
 
 theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
@@ -173,10 +166,7 @@ begin
     -- combine h₆ and h₇ and bam
     sorry,
   },
-  -- remove h₈ and make it part of this proof
   rw subgroups_are_conj,
-  unfold subgroups_conj_by_x,
-  -- rw subgroups_conj_by_x_def, -- says can't find instance of pattern?
   exact h₈,
 
   -- let L' be the set of left cosets of L
@@ -187,5 +177,3 @@ begin
   -- so x⁻¹Hx ≤ K -- this is theorem h₄
   -- since |L| = |K|, |x⁻¹Hx| = |K|, so x⁻¹Hx = K so are conjugate subgroups
 end
-
-example (G : Type) [group G] (L : subgroup G) : mul_action G (quotient L) := mul_action.quotient L
