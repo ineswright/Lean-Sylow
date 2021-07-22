@@ -25,7 +25,6 @@ lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.p
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
 
--- TODO: simplify proofs to a few lines
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
@@ -54,14 +53,6 @@ def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
 
 def subgroups_are_conj (L K : subgroup G) := 
   ∃ g : G, subgroups_conj_by_x L K g
-
--- not actually using rn- maybe delete
--- def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
---   (hndiv: ¬ p ∣ m) : set (subgroup G) :=
---   { L | is_sylow_subgroup L hp hG hndiv }
-
--- def set_of_conjug_subgroups [fintype G] (L : subgroup G) : set (subgroup G) :=
---   { J | subgroups_are_conj L J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
 
 noncomputable def index_of_subgroup [fintype G] (L : subgroup G) : ℕ :=
   card G / card L
@@ -100,7 +91,7 @@ conjugate_subgroup L x ≃ L := sorry
 
 
 
-lemma sylow_subgroup_index_equal_m [fintype G] {L : subgroup G} {p m n : ℕ}
+lemma sylow_subgroup_index [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : index_of_subgroup L = m :=
 begin
@@ -112,7 +103,7 @@ lemma subgroup_index_not_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : �
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
 begin
-  rw sylow_subgroup_index_equal_m hp hG hndiv h,
+  rw sylow_subgroup_index hp hG hndiv h,
   intro hn,
   apply hndiv,
   exact modeq.modeq_zero_iff.mp hn,
@@ -168,10 +159,6 @@ begin
     apply fintype.card_congr,
     exact subgroup_bijects_conjugate K x,
   },
-  have h₇' : ∀ x : G, card L ≤ card (conjugate_subgroup K x), {
-    intro x,
-    exact (h₇ x).ge,
-  },
   have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
     apply exists.elim h₆,
     intros x hx,
@@ -181,15 +168,4 @@ begin
     sorry,
   },
   exact h₈,
-end
-
--- example {A : Type u} [group A] [fintype A] (H K : subgroup A) (h1: H ⊆ K) 
--- (h2 : card K ≤ card H) : H = K :=
--- begin
---   exact eq_of_subset_of_card_le h1 h2,
---   sorry,
--- end
-
-example ( a b : ℕ) (h : a = b) : b ≤ a := begin
-  exact eq.ge h,
 end
