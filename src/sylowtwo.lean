@@ -30,10 +30,7 @@ def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
 begin
-  use 1,
-  split,
-  exact one_mem L,
-  simp,  
+  exact ⟨1, one_mem L, by simp⟩,
 end,
   mul_mem' := 
 begin
@@ -44,13 +41,9 @@ end,
 begin
   simp only [and_imp, exists_prop, set.mem_set_of_eq, exists_imp_distrib],
   intros x y hy hx,
-  use (g * x * g⁻¹)⁻¹,
-  split,
-  {
-    rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
-    exact inv_mem L hy,
-  },
-  group,
+  refine ⟨ (g * x * g⁻¹)⁻¹, _, by group⟩,
+  rw [hx, mul_assoc, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
+  exact inv_mem L hy,
 end }
 
 lemma conjugate_subgroup_def (L : subgroup G) (x g : G) : 
@@ -88,12 +81,23 @@ begin
   simp,
 end 
 
--- TODO
+
+
+-- TODO!!
+def subgroup_to_conjugate (x : G) (L : subgroup G) -- (K : ↥L) 
+: ↥(conjugate_subgroup L x) := sorry
+
+def conjugate_to_subgroup {L : subgroup G} {x : G} (K : (conjugate_subgroup L x)) 
+: ↥L := sorry
+
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
-conjugate_subgroup L x ≃ L := { to_fun := _,
-  inv_fun := _,
-  left_inv := _,
-  right_inv := _ }
+conjugate_subgroup L x ≃ L := --{ to_fun := conjugate_to_subgroup,
+  -- inv_fun := _,
+  -- left_inv := _,
+  -- right_inv := _ }
+
+
+
 
 lemma sylow_subgroup_index_equal_m [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
