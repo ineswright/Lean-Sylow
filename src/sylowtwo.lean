@@ -8,7 +8,7 @@
 -- does this import all of group_theory.sylows imports?
 import group_theory.sylow
 import tactic
--- import algebra.group.conj
+import algebra.group.conj
 
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
@@ -24,6 +24,9 @@ def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) : is_sylow_subgroup L hp hG hndiv ↔ (card L = p ^ n)
 := iff.rfl
+
+-- TODO: think about using conjugation function
+-- def conjugate (x y : G) := x⁻¹ * y * x
 
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
@@ -48,9 +51,6 @@ end }
 lemma conjugate_subgroup_def (L : subgroup G) (x g : G) : 
   x ∈ conjugate_subgroup L g ↔ x ∈  { c | ∃ h ∈ L, c = g⁻¹ * h * g } := iff.rfl
 
--- def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
---   conjugate_subgroup L x = K
-
 def subgroups_are_conj (L K : subgroup G) := 
   ∃ g : G, conjugate_subgroup L g  = K
 
@@ -73,22 +73,36 @@ begin
 end 
 
 
-
 -- TODO!!
-def subgroup_to_conjugate (x : G) (L : subgroup G) : ↥(conjugate_subgroup L x) 
-:= sorry
+-- def subgroup_to_conjugate (x : G) {L : subgroup G} (l : L) : ↥(conjugate_subgroup L x) 
+-- := x⁻¹ * l * x
 
-def conjugate_to_subgroup {L : subgroup G} {x : G} (y : conjugate_subgroup L x) 
-: ↥L := sorry
+-- def conjugate_to_subgroup {L : subgroup G} {x : G} (y : conjugate_subgroup L x) 
+-- : L := x * y * x⁻¹
+
+-- def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
+-- conjugate_subgroup L x ≃ L :=
+-- { to_fun := conjugate_to_subgroup,
+--   inv_fun := (subgroup_to_conjugate x),
+--   left_inv := 
+--   begin
+--     sorry,
+--   end,
+--   right_inv := 
+--   begin
+--     sorry,
+--   end }
+
+-- TYPE PROBLEMS
+
+def conjugate (x y : G) : G := x⁻¹ * y * x
 
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
 conjugate_subgroup L x ≃ L :=
-{ to_fun := conjugate_to_subgroup,
-  inv_fun := (subgroup_to_conjugate x),
+{ to_fun := ⟨ conjugate x⁻¹, _⟩ ,
+  inv_fun := ⟨ conjugate x, _⟩ ,
   left_inv := _,
   right_inv := _ }
-
-
 
 
 lemma sylow_subgroup_index [fintype G] {L : subgroup G} {p m n : ℕ}
@@ -138,11 +152,11 @@ begin
     let y := quotient.out' fp,
     use y,
 
-    -- want to continue manipulating hfp
-
-    -- this wants to take an elemenet of conjugate_subgroup and then prove it's in L
+    -- this wants to take an element of conjugate_subgroup and then prove it's in L
     -- this is not actually the proof in the theorem
     -- rintro _ ⟨x, hx, rfl⟩,
+
+    -- want to continue manipulating hfp instead I guess
 
 
     -- fp : yL
@@ -150,9 +164,6 @@ begin
     -- x * yL = yL
     -- y⁻¹ * x * yL = y⁻¹ * yL = L
 
-  -- let xL ∈ fixed points of action
-  -- then yxL = xL, ∀ y ∈ K     so x⁻¹yxL = L, ∀ y ∈ K
-  -- so x⁻¹Lx ≤ K
     sorry,
   },
   have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card L, {
