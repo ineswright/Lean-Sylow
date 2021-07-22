@@ -48,11 +48,11 @@ end }
 lemma conjugate_subgroup_def (L : subgroup G) (x g : G) : 
   x ∈ conjugate_subgroup L g ↔ x ∈  { c | ∃ h ∈ L, c = g⁻¹ * h * g } := iff.rfl
 
-def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
-  conjugate_subgroup L x = K
+-- def subgroups_conj_by_x (L K : subgroup G) (x : G) :=
+--   conjugate_subgroup L x = K
 
 def subgroups_are_conj (L K : subgroup G) := 
-  ∃ g : G, subgroups_conj_by_x L K g
+  ∃ g : G, conjugate_subgroup L g  = K
 
 noncomputable def index_of_subgroup [fintype G] (L : subgroup G) : ℕ :=
   card G / card L
@@ -75,18 +75,18 @@ end
 
 
 -- TODO!!
-def subgroup_to_conjugate (x : G) (L : subgroup G) -- (K : ↥L) 
-: ↥(conjugate_subgroup L x) := sorry
+def subgroup_to_conjugate (x : G) (L : subgroup G) : ↥(conjugate_subgroup L x) 
+:= sorry
 
-def conjugate_to_subgroup {L : subgroup G} {x : G} (y : (conjugate_subgroup L x)) 
+def conjugate_to_subgroup {L : subgroup G} {x : G} (y : conjugate_subgroup L x) 
 : ↥L := sorry
 
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
-conjugate_subgroup L x ≃ L := sorry
--- { to_fun := conjugate_to_subgroup,
---   inv_fun := _,
---   left_inv := _,
---   right_inv := _ }
+conjugate_subgroup L x ≃ L :=
+{ to_fun := conjugate_to_subgroup,
+  inv_fun := (subgroup_to_conjugate x),
+  left_inv := _,
+  right_inv := _ }
 
 
 
@@ -137,8 +137,12 @@ begin
     rw mul_action.mem_fixed_points at hfp,
     let y := quotient.out' fp,
     use y,
-    intros c hc,
-    rcases hc with ⟨x, hx, rfl⟩,
+
+    -- want to continue manipulating hfp
+
+    -- this wants to take an elemenet of conjugate_subgroup and then prove it's in L
+    -- this is not actually the proof in the theorem
+    -- rintro _ ⟨x, hx, rfl⟩,
 
 
     -- fp : yL
@@ -158,12 +162,9 @@ begin
     apply fintype.card_congr,
     exact subgroup_bijects_conjugate K x,
   },
-  have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
-    apply exists.elim h₆,
-    intros x hx,
-    use x,
-    rw set_like.ext'_iff,
-    exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
-  },
-  exact h₈,
+  apply exists.elim h₆,
+  intros x hx,
+  use x,
+  rw set_like.ext'_iff,
+  exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
 end
