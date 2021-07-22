@@ -131,14 +131,13 @@ begin
       exact h₄,
     },
   },
-  have h₆ : ∃ x : G, (conjugate_subgroup K x) ≤ L, {
+  have h₆ : ∃ x : G, (conjugate_subgroup K x : set G) ⊆ L, {
     rw card_pos_iff at h₅,
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
     let y := quotient.out' fp,
     use y,
     intros c hc,
-    rw conjugate_subgroup_def at hc,
     rcases hc with ⟨x, hx, rfl⟩,
 
 
@@ -163,9 +162,8 @@ begin
     apply exists.elim h₆,
     intros x hx,
     use x,
-    -- is the problem because i have ≤ and not ⊆ ?
-    -- exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
-    sorry,
+    rw set_like.ext'_iff,
+    exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
   },
   exact h₈,
 end
