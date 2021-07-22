@@ -85,15 +85,22 @@ lemma card_subgroup_pos [fintype G] (L : subgroup G) : 0 < card L :=
 card_pos_iff.2 $ nonempty.intro ⟨1, L.one_mem⟩
 
 -- lagranges theorem
-lemma index_of_subgroup_def2 [fintype G] (L : subgroup G) :
+lemma index_of_subgroup_def' [fintype G] (L : subgroup G) :
   index_of_subgroup L = card (quotient L) := 
 begin
   rw [index_of_subgroup_def, card_eq_card_quotient_mul_card_subgroup L],
   rw [nat.mul_div_assoc _ (dvd_refl (card ↥L)), nat.div_self (card_subgroup_pos L)],
   simp,
 end
+ 
 
-lemma subgroup_index_equal [fintype G] {L : subgroup G} {p m n : ℕ}
+def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
+conjugate_subgroup L x ≃ L := { to_fun := _,
+  inv_fun := _,
+  left_inv := _,
+  right_inv := _ }
+
+lemma sylow_subgroup_index_equal_m [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : index_of_subgroup L = m :=
 begin
@@ -105,7 +112,7 @@ lemma subgroup_index_not_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : �
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
 begin
-  rw subgroup_index_equal hp hG hndiv h,
+  rw sylow_subgroup_index_equal_m hp hG hndiv h,
   intro hn,
   apply hndiv,
   exact modeq.modeq_zero_iff.mp hn,
@@ -117,13 +124,12 @@ open_locale coset
 theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
--- (ha : left_cosets.aux_action) 
 : subgroups_are_conj K L :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
     rw is_sylow_subgroup_def at h₂,
-    rw index_of_subgroup_def2,
+    rw index_of_subgroup_def',
     exact card_modeq_card_fixed_points p h₂,
   },
   have h₅ : 0 < card (fixed_points K (quotient L)), {
@@ -145,8 +151,6 @@ begin
     intros c hc,
     rw conjugate_subgroup_def at hc,
     rcases hc with ⟨x, hx, rfl⟩,
-    -- i guess i want these both as sets? to fix type problem
-    -- suffices h : quotient_group.mk (y⁻¹ * x * y) = L,
 
   -- let xL ∈ fixed points of action
   -- then yxL = xL, ∀ y ∈ K     so x⁻¹yxL = L, ∀ y ∈ K
@@ -157,14 +161,8 @@ begin
     rw is_sylow_subgroup_def at h₁ h₂,
     intro x,
     rw [h₁, h₂.symm],
-    
-
-    -- rw card_eq,
-    -- apply nonempty.intro,
-
-    -- then need to construct a bijection between K and conjugate_subgroup K x
-    -- bijection is given by f(k) = x⁻¹kx
-    sorry,
+    apply fintype.card_congr,
+    exact subgroup_bijects_conjugate K x,
   },
   have h₈ : ∃ x : G, ( (conjugate_subgroup K x) = L), {
     apply exists.elim h₆,
