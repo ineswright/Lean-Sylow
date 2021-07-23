@@ -119,7 +119,6 @@ begin
   exact modeq.modeq_zero_iff.mp hn,
 end
 
-
 theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
@@ -142,32 +141,34 @@ begin
     },
   },
   have h₆ : ∃ x : G, (conjugate_subgroup K x : set G) ⊆ L, {
-    -- note that L is P1, K is P2
     rw card_pos_iff at h₅,
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
     let x := quotient.out' fp,
     use x,
     rintro _ ⟨y, hy, rfl⟩,
-    change y with x at hfp,
-    have hfpy := hfp ⟨y, hy⟩,
     have h1 : y • fp = quotient_group.mk (y * x), {
-      convert quotient.smul_mk L y x,
       rw ← quotient.out_eq' fp,
+      exact quotient.smul_mk L y x,
     },
     have h2 : @quotient_group.mk _ _ L (x⁻¹ * y * x) = quotient_group.mk 1, {
       rw [mul_assoc, ← quotient.smul_mk L x⁻¹ (y * x)],
       rw [← smul_left_cancel_iff x, smul_smul x x⁻¹ _, mul_inv_self, quotient.smul_mk, one_mul],
-      rw [quotient.smul_mk, mul_one],
-      rw ← h1,
-      sorry,
+      rw [quotient.smul_mk, mul_one, ← h1],
+      convert hfp ⟨y, hy⟩,
+      exact quotient.out_eq' fp,
     },
+    -- need to use h2 and closure to express that x⁻¹ * y * x ∈ L
+    -- i guess i'm gonna need some kind of equivalence with the coset and quotient
+    change y with x at hfp,
+
+
     -- take a fixed point from the action
     -- fp = xL and ∀ y ∈ K, y • xL = xL     -- i have this already
 
     -- y • xL = (y*x)L by definition of action -- this is h1
     -- so we have xL = (y * x)L -- i have this as a partial goal now
-    -- L = (x⁻¹ * y * x)L
+    -- L = (x⁻¹ * y * x)L -- i have this too now
 
     -- therefore x⁻¹ * y * x ∈ L as L is closed
     -- so ∀ y ∈ K, x⁻¹ * y * x ∈ L
@@ -187,12 +188,4 @@ begin
   use x,
   rw set_like.ext'_iff,
   exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
-end
-
-
-example (x y z : G) (L : subgroup G) : 
-x •y • z = (x * y) • z :=
-begin
-  exact smul_smul x y z,
-  sorry,
 end
