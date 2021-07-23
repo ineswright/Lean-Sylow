@@ -149,16 +149,27 @@ begin
     let x := quotient.out' fp,
     use x,
     rintro _ ⟨y, hy, rfl⟩,
-    let hfpy := hfp ⟨y, hy⟩,
-
+    change y with x at hfp,
+    have hfpy := hfp ⟨y, hy⟩,
+    have h1 : y • fp = quotient_group.mk (y * x), {
+      convert quotient.smul_mk L y x,
+      rw ← quotient.out_eq' fp,
+    },
+    have h2 : @quotient_group.mk _ _ L (x⁻¹ * y * x) = quotient_group.mk 1, {
+      rw [mul_assoc, ← quotient.smul_mk L x⁻¹ (y * x)],
+      rw [← smul_left_cancel_iff x, smul_smul x x⁻¹ _, mul_inv_self, quotient.smul_mk, one_mul],
+      rw [quotient.smul_mk, mul_one],
+      rw ← h1,
+      sorry,
+    },
     -- take a fixed point from the action
-    -- fp : xL and ∀ y ∈ K, y • xL = xL     -- i have this already
+    -- fp = xL and ∀ y ∈ K, y • xL = xL     -- i have this already
 
-    -- y • xL = (y*x)L by definition of action
-    -- so we have xL = (y * x)L
+    -- y • xL = (y*x)L by definition of action -- this is h1
+    -- so we have xL = (y * x)L -- i have this as a partial goal now
     -- L = (x⁻¹ * y * x)L
 
-    -- therefore x⁻¹ * y * x ∈ L as L is closed?
+    -- therefore x⁻¹ * y * x ∈ L as L is closed
     -- so ∀ y ∈ K, x⁻¹ * y * x ∈ L
     -- conjugate_subgroup K x ⊆ L
 
@@ -176,4 +187,12 @@ begin
   use x,
   rw set_like.ext'_iff,
   exact set.eq_of_subset_of_card_le hx (h₇ x).ge,
+end
+
+
+example (x y z : G) (L : subgroup G) : 
+x •y • z = (x * y) • z :=
+begin
+  exact smul_smul x y z,
+  sorry,
 end
