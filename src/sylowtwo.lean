@@ -72,6 +72,7 @@ begin
   simp,
 end 
 
+
 -- think about replacing λ with a conjugation function
 -- will almost definitely need to do this for mathlib anyway
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
@@ -79,8 +80,7 @@ conjugate_subgroup L x ≃ L :=
 { to_fun := (λ y : conjugate_subgroup L x, ⟨x * y * x⁻¹, 
 begin
   rcases y with ⟨_, z, hz, rfl⟩,
-  simp only [subtype.coe_mk],
-  rw [mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
+  rw [subtype.coe_mk, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
   exact hz,
 end⟩) ,
   inv_fun := (λ y : L, ⟨x⁻¹ * y * x,
@@ -89,11 +89,15 @@ begin
 end⟩) ,
   left_inv := 
   begin
-    sorry,
+    rintro ⟨y, hy⟩,
+    simp only [subtype.mk_eq_mk, subtype.coe_mk],
+    group,
   end,
   right_inv := 
   begin
-    sorry,
+    rintros ⟨y, hy⟩,
+    simp only [subtype.mk_eq_mk, subtype.coe_mk],
+    group,
   end }
 
 
