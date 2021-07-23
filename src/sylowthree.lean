@@ -15,9 +15,18 @@ open_locale classical
   `p`-subgroup in `G`.
   -/
 
-def num_p_subgroups (p : ℕ) : ℕ 
+-- def set_of_conjug_subgroups [fintype G] (L : subgroup G) : set (subgroup G) :=
+--   { J | subgroups_are_conj L J ∧ ∃ p : ℕ, is_sylow_subgroup J p }
 
-theorem sylow_three {p nₚ : ℕ} (h₁ : nₚ = num_p_subgroups p) : nₚ ≡ 1 [MOD p] :=
+def set_of_sylow_subgroups [fintype G] {p m n : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
+  (hndiv: ¬ p ∣ m) : finset (subgroup G) :=
+  { L | is_sylow_subgroup L hp hG hndiv }
+
+def num_p_subgroups [fintype G] {p m n: ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
+  (hndiv: ¬ p ∣ m) : ℕ := card (set_of_sylow_subgroups hp hG hndiv)
+
+theorem sylow_three [fintype G] {p m n nₚ : ℕ} (hp : p.prime) (hG : card G = p ^ n * m) 
+  (hndiv: ¬ p ∣ m) (h₁ : nₚ = num_p_subgroups hp hG hndiv) : nₚ ≡ 1 [MOD p] :=
 begin
   sorry,
 end

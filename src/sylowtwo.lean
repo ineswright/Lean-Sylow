@@ -95,7 +95,7 @@ end⟩) ,
   end,
   right_inv := 
   begin
-    rintros ⟨y, hy⟩,
+    rintro ⟨y, hy⟩,
     simp only [subtype.mk_eq_mk, subtype.coe_mk],
     group,
   end }
@@ -142,23 +142,25 @@ begin
     },
   },
   have h₆ : ∃ x : G, (conjugate_subgroup K x : set G) ⊆ L, {
+    -- note that L is P1, K is P2
     rw card_pos_iff at h₅,
     rcases h₅ with ⟨fp, hfp⟩,
     rw mul_action.mem_fixed_points at hfp,
-    let y := quotient.out' fp,
-    use y,
+    let x := quotient.out' fp,
+    use x,
+    rintro _ ⟨y, hy, rfl⟩,
+    let hfpy := hfp ⟨y, hy⟩,
 
-    -- this wants to take an element of conjugate_subgroup and then prove it's in L
-    -- this is not actually the proof in the theorem
-    -- rintro _ ⟨x, hx, rfl⟩,
+    -- take a fixed point from the action
+    -- fp : xL and ∀ y ∈ K, y • xL = xL     -- i have this already
 
-    -- want to continue manipulating hfp instead I guess
+    -- y • xL = (y*x)L by definition of action
+    -- so we have xL = (y * x)L
+    -- L = (x⁻¹ * y * x)L
 
-
-    -- fp : yL
-    -- y : G
-    -- x * yL = yL
-    -- y⁻¹ * x * yL = y⁻¹ * yL = L
+    -- therefore x⁻¹ * y * x ∈ L as L is closed?
+    -- so ∀ y ∈ K, x⁻¹ * y * x ∈ L
+    -- conjugate_subgroup K x ⊆ L
 
     sorry,
   },
