@@ -72,37 +72,29 @@ begin
   simp,
 end 
 
-
--- TODO!!
--- def subgroup_to_conjugate (x : G) {L : subgroup G} (l : L) : ↥(conjugate_subgroup L x) 
--- := x⁻¹ * l * x
-
--- def conjugate_to_subgroup {L : subgroup G} {x : G} (y : conjugate_subgroup L x) 
--- : L := x * y * x⁻¹
-
--- def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
--- conjugate_subgroup L x ≃ L :=
--- { to_fun := conjugate_to_subgroup,
---   inv_fun := (subgroup_to_conjugate x),
---   left_inv := 
---   begin
---     sorry,
---   end,
---   right_inv := 
---   begin
---     sorry,
---   end }
-
--- TYPE PROBLEMS
-
-def conjugate (x y : G) : G := x⁻¹ * y * x
-
+-- think about replacing λ with a conjugation function
+-- will almost definitely need to do this for mathlib anyway
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
 conjugate_subgroup L x ≃ L :=
-{ to_fun := ⟨ conjugate x⁻¹, _⟩ ,
-  inv_fun := ⟨ conjugate x, _⟩ ,
-  left_inv := _,
-  right_inv := _ }
+{ to_fun := (λ y : conjugate_subgroup L x, ⟨x * y * x⁻¹, 
+begin
+  rcases y with ⟨_, z, hz, rfl⟩,
+  simp only [subtype.coe_mk],
+  rw [mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
+  exact hz,
+end⟩) ,
+  inv_fun := (λ y : L, ⟨x⁻¹ * y * x,
+begin
+  refine ⟨y, set_like.coe_mem y, rfl⟩,
+end⟩) ,
+  left_inv := 
+  begin
+    sorry,
+  end,
+  right_inv := 
+  begin
+    sorry,
+  end }
 
 
 lemma sylow_subgroup_index [fintype G] {L : subgroup G} {p m n : ℕ}
