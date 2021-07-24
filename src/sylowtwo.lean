@@ -1,14 +1,10 @@
-/- Need to check how many of these I'm actually using -/
--- import group_theory.group_action
--- import group_theory.quotient_group
--- import group_theory.order_of_element
--- import data.zmod.basic
--- import data.fintype.card
--- import data.list.rotate
--- does this import all of group_theory.sylows imports?
+import group_theory.group_action
+import group_theory.quotient_group
+import data.zmod.basic
+import data.fintype.card
 import group_theory.sylow
 import tactic
-import algebra.group.conj
+-- import algebra.group.conj
 
 open equiv fintype finset mul_action function nat sylow
 open subgroup quotient_group
@@ -72,6 +68,12 @@ begin
   simp,
 end 
 
+lemma quotient_iff_set {x y : G} {L : subgroup G}
+: @quotient_group.mk _ _ L x = quotient_group.mk y ↔ left_coset x L = left_coset y L := 
+begin
+  sorry,
+end
+
 
 -- think about replacing λ with a conjugation function
 -- will almost definitely need to do this for mathlib anyway
@@ -83,10 +85,7 @@ begin
   rw [subtype.coe_mk, mul_assoc, mul_assoc, mul_inv_self, mul_one, ← mul_assoc, mul_inv_self, one_mul],
   exact hz,
 end⟩) ,
-  inv_fun := (λ y : L, ⟨x⁻¹ * y * x,
-begin
-  refine ⟨y, set_like.coe_mem y, rfl⟩,
-end⟩) ,
+  inv_fun := (λ y : L, ⟨x⁻¹ * y * x, ⟨y, set_like.coe_mem y, rfl⟩⟩),
   left_inv := 
   begin
     rintro ⟨y, hy⟩,
@@ -158,23 +157,13 @@ begin
       convert hfp ⟨y, hy⟩,
       exact quotient.out_eq' fp,
     },
-    -- need to use h2 and closure to express that x⁻¹ * y * x ∈ L
-    -- i guess i'm gonna need some kind of equivalence with the coset and quotient
-    change y with x at hfp,
-
-
-    -- take a fixed point from the action
-    -- fp = xL and ∀ y ∈ K, y • xL = xL     -- i have this already
-
-    -- y • xL = (y*x)L by definition of action -- this is h1
-    -- so we have xL = (y * x)L -- i have this as a partial goal now
-    -- L = (x⁻¹ * y * x)L -- i have this too now
-
-    -- therefore x⁻¹ * y * x ∈ L as L is closed
-    -- so ∀ y ∈ K, x⁻¹ * y * x ∈ L
-    -- conjugate_subgroup K x ⊆ L
-
-    sorry,
+    rw [quotient_iff_set, one_left_coset] at h2,
+    rw ← h2,
+    unfold left_coset,
+    simp only [mul_inv_rev, set.mem_preimage, set.image_mul_left, set_like.mem_coe, inv_inv],
+    rw [mul_assoc, mul_assoc, mul_assoc, ← mul_assoc x x⁻¹ (y * x)],
+    rw [mul_inv_self, one_mul, ← mul_assoc, ← mul_assoc],
+    simp [mul_left_inv, inv_mul_cancel_right, one_mem L],
   },
   have h₇ : ∀ x : G, card (conjugate_subgroup K x) = card L, {
     rw is_sylow_subgroup_def at h₁ h₂,
