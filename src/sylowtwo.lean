@@ -68,17 +68,20 @@ begin
   simp,
 end 
 
-#check eq_class_eq_left_coset
+-- this is Eric's proof, pull request 8382 quotient_group.eq_iff_coset_eq
 lemma quotient_iff_set {y z : G} {L : subgroup G}
 : @quotient_group.mk _ _ L y = quotient_group.mk z ↔ left_coset y L = left_coset z L := 
 begin
-  rw quotient.eq',
-  rw [← eq_class_eq_left_coset L y, ← eq_class_eq_left_coset L z],
-  
-  
-  sorry,
+  rw [←quotient_group.eq_class_eq_left_coset, ←quotient_group.eq_class_eq_left_coset],
+  rw set.ext_iff,
+  dsimp,
+  split,
+  { intros h z, 
+    exact eq.congr_right h,
+    },
+  intro h, 
+  exact (h y).mp rfl
 end
-
 
 -- think about replacing λ with a conjugation function
 -- this may already exist
