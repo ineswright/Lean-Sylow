@@ -13,6 +13,7 @@ variables {G : Type u} [group G]
 
 open_locale classical
 
+-- define a sylow subgroup given a prime p, and subgroup L
 def is_sylow_subgroup [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.prime)
 (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) :=
   card L = p ^ n
@@ -24,6 +25,7 @@ lemma is_sylow_subgroup_def [fintype G] (L : subgroup G) {p m n : ℕ} (hp : p.p
 -- TODO: think about using conjugation function
 -- def conjugate (x y : G) := x⁻¹ * y * x
 
+-- give the subgroup conjugate to subgroup L by g
 def conjugate_subgroup (L : subgroup G) (g : G) : subgroup G :=
 { carrier := { c | ∃ h ∈ L, c = g⁻¹ * h * g },
   one_mem' := 
@@ -47,15 +49,13 @@ end }
 lemma conjugate_subgroup_def (L : subgroup G) (x g : G) : 
   x ∈ conjugate_subgroup L g ↔ x ∈  { c | ∃ h ∈ L, c = g⁻¹ * h * g } := iff.rfl
 
-def subgroups_are_conj (L K : subgroup G) := 
-  ∃ g : G, conjugate_subgroup L g  = K
-
 noncomputable def index_of_subgroup [fintype G] (L : subgroup G) : ℕ :=
   card G / card L
 
 lemma index_of_subgroup_def [fintype G] (L : subgroup G) : 
   index_of_subgroup L = card G / card L := rfl
  
+-- this must already exist in mathlib - FIND IT!
 lemma card_subgroup_pos [fintype G] (L : subgroup G) : 0 < card L :=
 card_pos_iff.2 $ nonempty.intro ⟨1, L.one_mem⟩
 
@@ -68,15 +68,20 @@ begin
   simp,
 end 
 
-lemma quotient_iff_set {x y : G} {L : subgroup G}
-: @quotient_group.mk _ _ L x = quotient_group.mk y ↔ left_coset x L = left_coset y L := 
+#check eq_class_eq_left_coset
+lemma quotient_iff_set {y z : G} {L : subgroup G}
+: @quotient_group.mk _ _ L y = quotient_group.mk z ↔ left_coset y L = left_coset z L := 
 begin
+  rw quotient.eq',
+  rw [← eq_class_eq_left_coset L y, ← eq_class_eq_left_coset L z],
+  
+  
   sorry,
 end
 
 
 -- think about replacing λ with a conjugation function
--- will almost definitely need to do this for mathlib anyway
+-- this may already exist
 def subgroup_bijects_conjugate (L : subgroup G) (x : G) : 
 conjugate_subgroup L x ≃ L :=
 { to_fun := (λ y : conjugate_subgroup L x, ⟨x * y * x⁻¹, 
@@ -99,7 +104,7 @@ end⟩) ,
     group,
   end }
 
-
+-- this index of a sylow subgroup is m
 lemma sylow_subgroup_index [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : index_of_subgroup L = m :=
@@ -108,6 +113,7 @@ begin
   rw [index_of_subgroup_def, hG, h, nat.mul_div_cancel_left _ (pow_pos (pos_of_gt hp.left) n)],
 end
 
+-- the index of a sylow subgroup is not divisible by prime p
 lemma subgroup_index_not_conj_zero_wrt_p [fintype G] {L : subgroup G} {p m n : ℕ}
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m) (h : is_sylow_subgroup L hp hG hndiv) 
   : ¬ index_of_subgroup L ≡ 0 [MOD p] :=
@@ -121,7 +127,7 @@ end
 theorem sylow_two [fintype G] {p n m : ℕ} (L K : subgroup G) 
 (hp : p.prime) (hG : card G = p ^ n * m) (hndiv: ¬ p ∣ m)
 ( h₁ : is_sylow_subgroup L hp hG hndiv) (h₂ : is_sylow_subgroup K hp hG hndiv)
-: subgroups_are_conj K L :=
+: ∃ g : G, conjugate_subgroup K g  = L :=
 begin
   haveI : fact (p.prime) := ⟨ hp ⟩,
   have h₄ : index_of_subgroup L ≡ card (fixed_points K (quotient L)) [MOD p], {
