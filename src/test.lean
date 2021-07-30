@@ -2,7 +2,7 @@ import data.nat.prime
 import number_theory.padics.padic_norm
 import data.pnat.factors
 
-
+-- ERIC'S CODE
 @[simp]
 lemma prime_multiset.coe_add (m n : prime_multiset) : ↑(m + n) = (m + n : multiset ℕ) :=
 is_add_monoid_hom.map_add _ _ _
@@ -17,7 +17,7 @@ begin
   simpa using this,
 end
 
-
+--MY CODE
 lemma factors_prime_pow_eq_repeat_prime_pow (p y : ℕ) (hprime : p.prime) : list.repeat p y = (p ^ y).factors :=
 begin
   haveI : fact p.prime := ⟨hprime⟩,
